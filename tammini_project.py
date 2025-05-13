@@ -176,7 +176,7 @@ def questionnaire():
             else:
                 st.error("يرجى تسجيل الدخول أولاً.")
 
-# ----------------- Navigation -----------------
+#  ----------------- Navigation -----------------
 if 'page' not in st.session_state:
     st.session_state.page = "landing"
 
@@ -192,4 +192,7 @@ if 'user' not in st.session_state:
         signup()
     st.stop()
 else:
-    questionnaire()
+    if st.session_state.page == "result":
+        show_results()
+    else:
+        questionnaire()
