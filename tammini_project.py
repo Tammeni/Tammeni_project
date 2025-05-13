@@ -9,6 +9,7 @@ import os
 from pipeline import encode_Sbert, clean_text, clean_and_stem_arabic, get_score
 
 
+
 # ----------------- Load Trained Models -----------------
 model_path = os.getcwd()
 rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep.pkl'))
