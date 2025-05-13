@@ -2,6 +2,7 @@
 import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
+import random
 
 # ----------------- Database Connection -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
