@@ -1,5 +1,7 @@
 streamlit
-pandas
 seaborn
 matplotlib
 pymongo
+pandas
+joblib
+scikit-learn
