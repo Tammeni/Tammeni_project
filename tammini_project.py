@@ -6,7 +6,7 @@ import random
 import pandas as pd
 import joblib
 import os
-from utils.pipeline import encode_Sbert, clean_text, clean_and_stem_arabic, get_score
+from pipeline import encode_Sbert, clean_text, clean_and_stem_arabic, get_score
 
 
 # ----------------- Load Trained Models -----------------
