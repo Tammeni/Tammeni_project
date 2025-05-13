@@ -5,3 +5,4 @@ pymongo
 pandas
 joblib
 scikit-learn
+sentence-transformers
