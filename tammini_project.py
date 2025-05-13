@@ -3,7 +3,15 @@ import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
 import random
+import pandas as pd
+import joblib
+import os
+from pipeline import encode_Sbert, clean_text, clean_and_stem_arabic, get_score
 
+# ----------------- Load Trained Models -----------------
+model_path = os.getcwd()
+rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep.pkl'))
+rfc_anx = joblib.load(os.path.join(model_path, 'rfc_anx.pkl'))
 # ----------------- Database Connection -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
 client = MongoClient(uri)
