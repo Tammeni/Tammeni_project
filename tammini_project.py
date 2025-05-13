@@ -127,7 +127,16 @@ def login():
                         st.info("لم يتم تحليل النتيجة بعد.")
         else:
             st.error("بيانات الدخول غير صحيحة.")
+# ----------------- Result Page -----------------
+def show_results():
+    st.markdown("""
+        <h2 style='color:#005b99;'>🔍 نتائج التقييم</h2>
+    """, unsafe_allow_html=True)
 
+    if 'latest_result' in st.session_state:
+        st.write(st.session_state['latest_result'])
+    else:
+        st.info("لا توجد نتائج متاحة حالياً.")
 # ----------------- Questionnaire -----------------
 def questionnaire():
     st.subheader("التقييم النفسي")
