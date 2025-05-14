@@ -4,7 +4,7 @@ import pandas as pd
 import re
 import torch
 import regex as reg
-
+import os
 import nltk
 
 # --- Ensure required NLTK resources are available ---
@@ -67,11 +67,19 @@ def get_score(model, X_test):
 # ----------------- JAIS Translation -----------------
 bnb_config = BitsAndBytesConfig(load_in_8bit=True)
 
-tokenizer = AutoTokenizer.from_pretrained("inceptionai/jais-13b-chat", padding_side='left')
+
+
+tokenizer = AutoTokenizer.from_pretrained(
+    "inceptionai/jais-13b-chat",
+    padding_side='left',
+    token=os.environ["HF_TOKEN"]
+)
+
 model = AutoModelForCausalLM.from_pretrained(
     "inceptionai/jais-13b-chat",
     device_map="auto",
-    trust_remote_code=True
+    trust_remote_code=True,
+    token=os.environ["HF_TOKEN"]
 )
 
 def translate_to_fusha(text):
