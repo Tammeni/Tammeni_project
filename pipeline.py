@@ -25,10 +25,8 @@ arabic_stopwords = set(stopwords.words('arabic'))
 stemmer = ISRIStemmer()
 
 # Use Hugging Face token to authenticate SBERT model download
-Sbert = SentenceTransformer(
-    'sentence-transformers/distiluse-base-multilingual-cased-v1',
-    use_auth_token=os.environ.get("HF_TOKEN")
-)
+Sbert = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+
 
 def clean_text(text):
     cleaned = re.sub(r'[\'\"\n\d,;.،؛.؟]', ' ', text)
