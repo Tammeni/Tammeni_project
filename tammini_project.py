@@ -20,7 +20,7 @@ if not os.path.exists("sbert_model"):
 nltk.download('stopwords')
 arabic_stopwords = set(stopwords.words('arabic'))
 stemmer = ISRIStemmer()
-
+Sbert = SentenceTransformer('./sbert_model')
 # ----------------- Functions -----------------
 def clean_text(text):
     cleaned = re.sub(r"[\'\"\n\d,;.،؛.؟]", ' ', text)
