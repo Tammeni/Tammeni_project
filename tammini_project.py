@@ -7,13 +7,21 @@ import pandas as pd
 import joblib
 import os
 
-from pipeline import encode_Sbert, clean_text, clean_and_stem_arabic, get_score
+from pipeline import encode_Sbert, clean_text, clean_and_stem_arabic, get_score,translate_to_fusha
 
 
 # ----------------- Load Trained Models -----------------
 model_path = os.getcwd()
 rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep.pkl'))
 rfc_anx = joblib.load(os.path.join(model_path, 'rfc_anx.pkl'))
+
+from sklearn.preprocessing import LabelEncoder
+
+DepEncoder = LabelEncoder()
+DepEncoder.classes_ = ["Depression", "Healthy"]
+
+AnxEncoder = LabelEncoder()
+AnxEncoder.classes_ = ["Anxiety", "Healthy"]
 # ----------------- Database Connection -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
 client = MongoClient(uri)
@@ -163,11 +171,6 @@ def questionnaire():
         6: """س6: هل يترافق مع التفكير المفرط أو القلق المستمر ثلاثة أعراض أو أكثر من الأعراض التالية:  الشعور بعدم الارتياح أو بضغط نفسي كبير، الإحساس بالتعب والإرهاق بسهولة،  صعوبة واضحة في التركيز، الشعور بالعصبية الزائدة، شد عضلي مزمن، اضطرابات في النوم، وغيرها؟ 
                اذكر كل عرض تعاني منه وهل يؤثر على مهامك اليومية مثل العمل أو الدراسة أو حياتك الاجتماعية؟  وكيف يؤثر عليك بشكل يومي؟"""
     }
-
-
-   
-
-
     answers = {}
     for i in range(1, 7):
         answers[f"q{i}"] = st.text_area(questions[i])
@@ -179,18 +182,71 @@ def questionnaire():
             st.error("الرجاء عدم استخدام أحرف إنجليزية في الإجابات.")
         else:
             user = st.session_state.get('user')
-            if user:
+            if not user:
+                st.error("يرجى تسجيل الدخول أولاً.")
+                st.stop()
+
+            try:
+                translated_answers = []
+                for i in range(1, 7):
+                    original = answers[f"q{i}"]
+                    translated = translate_to_fusha(original)
+                    cleaned = clean_text(translated)
+                    stemmed = clean_and_stem_arabic(cleaned)
+                    translated_answers.append(stemmed)
+
+                questions_list = [f"س{i}" for i in range(1, 7)]
+                answers_df = pd.DataFrame([translated_answers], columns=questions_list)
+                encoded = encode_Sbert(questions_list, answers_df)
+
+                dep_pred = rfc_dep.predict(encoded)[0]
+                anx_pred = rfc_anx.predict(encoded)[0]
+
+                # Ensure encoders are defined or loaded
+                DepEncoder = LabelEncoder()
+                DepEncoder.classes_ = ["Depression", "Healthy"]
+                AnxEncoder = LabelEncoder()
+                AnxEncoder.classes_ = ["Anxiety", "Healthy"]
+
+                dep_label = DepEncoder.inverse_transform([dep_pred])[0]
+                anx_label = AnxEncoder.inverse_transform([anx_pred])[0]
+
+                if dep_label == "Depression" and anx_label == "Anxiety":
+                    final_result = "كلا الاكتئاب والقلق"
+                elif dep_label == "Depression":
+                    final_result = "اكتئاب"
+                elif anx_label == "Anxiety":
+                    final_result = "قلق"
+                elif dep_label == "Healthy" and anx_label == "Healthy":
+                    final_result = "سليم / لا توجد مؤشرات واضحة"
+                else:
+                    final_result = f"نتائج مختلطة: اكتئاب = {dep_label}، قلق = {anx_label}"
+
                 responses_col.insert_one({
                     "username": user,
                     "gender": gender,
                     "age": age,
                     **answers,
+                    "result": final_result,
                     "timestamp": datetime.now()
                 })
-                st.success("تم حفظ الإجابات.")
-            else:
-                st.error("يرجى تسجيل الدخول أولاً.")
 
+                st.session_state['latest_result'] = final_result
+                st.success(f"✅ تم تحليل النتيجة: {final_result}")
+                st.session_state.page = "result"
+                st.experimental_rerun()
+
+            except Exception as e:
+                st.error("حدث خطأ أثناء تحليل الإجابات.")
+                st.error(str(e))
+
+
+   
+
+
+   
+
+   
 #  ----------------- Navigation -----------------
 if 'page' not in st.session_state:
     st.session_state.page = "landing"
