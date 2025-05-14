@@ -12,7 +12,10 @@ import re
 import nltk
 from nltk.stem.isri import ISRIStemmer
 from nltk.corpus import stopwords
-
+import zipfile
+if not os.path.exists("sbert_model"):
+    with zipfile.ZipFile("Sbert_model.zip", 'r') as zip_ref:
+        zip_ref.extractall("sbert_model")
 # ----------------- Preprocessing -----------------
 nltk.download('stopwords')
 arabic_stopwords = set(stopwords.words('arabic'))
@@ -45,16 +48,17 @@ def encode_Sbert(questions, answers):
 
 # ----------------- Load Trained Models -----------------
 model_path = os.getcwd()
-rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep.pkl'))
-rfc_anx = joblib.load(os.path.join(model_path, 'rfc_anx.pkl'))
+rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep(1).pkl'))
+rfc_anx = joblib.load(os.path.join(model_path, 'rfc_anx(1).pkl'))
 
 DepEncoder = LabelEncoder()
 DepEncoder.classes_ = ["Depression", "Healthy"]
 AnxEncoder = LabelEncoder()
 AnxEncoder.classes_ = ["Anxiety", "Healthy"]
 
-# ----------------- SBERT -----------------
-Sbert = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1')
+
+# ----------------- Load SBERT Locally -----------------
+Sbert = SentenceTransformer(os.path.join(os.getcwd(), 'sbert_model'))
 
 # ----------------- Database -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
