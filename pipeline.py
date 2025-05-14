@@ -22,7 +22,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 # ----------------- Preprocessing Utilities -----------------
 arabic_stopwords = set(stopwords.words('arabic'))
 stemmer = ISRIStemmer()
-Sbert = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1')
+Sbert = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1',
+    use_auth_token=os.environ["HF_TOKEN"]
+)
 
 def clean_text(text):
     cleaned = re.sub(r'[\'\"\n\d,;.،؛.؟]', ' ', text)
