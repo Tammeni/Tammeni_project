@@ -1,10 +1,7 @@
 streamlit
-pandas
-numpy
-scikit-learn
-joblib
 pymongo
+scikit-learn
 nltk
 sentence-transformers
-transformers
 torch
+transformers
