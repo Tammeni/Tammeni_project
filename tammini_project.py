@@ -48,8 +48,8 @@ if not os.path.exists("sbert_model"):
         zip_ref.extractall("sbert_model")
 # ----------------- Load Trained Models -----------------
 model_path = os.getcwd()
-rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep(1).pkl'))
-rfc_anx = joblib.load(os.path.join(model_path, 'rfc_anx(1).pkl'))
+rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep.pkl'))
+rfc_anx = joblib.load(os.path.join(model_path, 'rfc_anx.pkl'))
 
 DepEncoder = LabelEncoder()
 DepEncoder.classes_ = ["Depression", "Healthy"]
