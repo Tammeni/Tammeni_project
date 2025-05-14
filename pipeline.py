@@ -5,6 +5,7 @@ import re
 import torch
 import regex as reg
 import os
+
 import nltk
 
 # --- Ensure required NLTK resources are available ---
@@ -22,8 +23,11 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 # ----------------- Preprocessing Utilities -----------------
 arabic_stopwords = set(stopwords.words('arabic'))
 stemmer = ISRIStemmer()
-Sbert = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1',
-    use_auth_token=os.environ["HF_TOKEN"]
+
+# Use Hugging Face token to authenticate SBERT model download
+Sbert = SentenceTransformer(
+    'sentence-transformers/distiluse-base-multilingual-cased-v1',
+    use_auth_token=os.environ.get("HF_TOKEN")
 )
 
 def clean_text(text):
@@ -69,19 +73,17 @@ def get_score(model, X_test):
 # ----------------- JAIS Translation -----------------
 bnb_config = BitsAndBytesConfig(load_in_8bit=True)
 
-
-
 tokenizer = AutoTokenizer.from_pretrained(
     "inceptionai/jais-13b-chat",
     padding_side='left',
-    token=os.environ["HF_TOKEN"]
+    token=os.environ.get("HF_TOKEN")
 )
 
 model = AutoModelForCausalLM.from_pretrained(
     "inceptionai/jais-13b-chat",
     device_map="auto",
     trust_remote_code=True,
-    token=os.environ["HF_TOKEN"]
+    token=os.environ.get("HF_TOKEN")
 )
 
 def translate_to_fusha(text):
@@ -99,3 +101,4 @@ def translate_to_fusha(text):
         print(f"Error translating: {text[:30]}... — {e}")
         torch.cuda.empty_cache()
         return ""
+
