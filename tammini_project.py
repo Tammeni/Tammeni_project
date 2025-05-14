@@ -13,14 +13,12 @@ import nltk
 from nltk.stem.isri import ISRIStemmer
 from nltk.corpus import stopwords
 import zipfile
-if not os.path.exists("sbert_model"):
-    with zipfile.ZipFile("Sbert_model.zip", 'r') as zip_ref:
-        zip_ref.extractall("sbert_model")
+
 # ----------------- Preprocessing -----------------
 nltk.download('stopwords')
 arabic_stopwords = set(stopwords.words('arabic'))
 stemmer = ISRIStemmer()
-Sbert = SentenceTransformer('./sbert_model')
+
 # ----------------- Functions -----------------
 def clean_text(text):
     cleaned = re.sub(r"[\'\"\n\d,;.،؛.؟]", ' ', text)
@@ -45,7 +43,9 @@ def encode_Sbert(questions, answers):
     a_embeddings = Sbert.encode(answers, convert_to_tensor=True, normalize_embeddings=True)
     similarities = cos_sim(q_embeddings, a_embeddings).diagonal().tolist()
     return pd.DataFrame([similarities], columns=[f"Q{i+1}_sim" for i in range(len(similarities))])
-
+if not os.path.exists("sbert_model"):
+    with zipfile.ZipFile("Sbert_model.zip", 'r') as zip_ref:
+        zip_ref.extractall("sbert_model")
 # ----------------- Load Trained Models -----------------
 model_path = os.getcwd()
 rfc_dep = joblib.load(os.path.join(model_path, 'rfc_dep(1).pkl'))
@@ -58,8 +58,8 @@ AnxEncoder.classes_ = ["Anxiety", "Healthy"]
 
 
 # ----------------- Load SBERT Locally -----------------
-Sbert = SentenceTransformer(os.path.join(os.getcwd(), 'sbert_model'))
 
+Sbert = SentenceTransformer('./sbert_model')
 # ----------------- Database -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
 client = MongoClient(uri)
