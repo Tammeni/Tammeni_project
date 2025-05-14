@@ -3,14 +3,23 @@ import numpy as np
 import pandas as pd
 import re
 import torch
+import regex as reg
+
+import nltk
+
+# --- Ensure required NLTK resources are available ---
+try:
+    nltk.data.find("corpora/stopwords")
+except LookupError:
+    nltk.download("stopwords")
+
 from nltk.stem.isri import ISRIStemmer
 from nltk.corpus import stopwords
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-import regex as reg
 
-# ----------------- Preprocessing -----------------
+# ----------------- Preprocessing Utilities -----------------
 arabic_stopwords = set(stopwords.words('arabic'))
 stemmer = ISRIStemmer()
 Sbert = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1')
@@ -69,7 +78,7 @@ def translate_to_fusha(text):
     try:
         if not isinstance(text, str) or text.strip() == "":
             return ""
-        prompt = f"""حول الجملة التالية من اللهجة العامية إلى اللغة العربية الفصحى:\n"{text}"\nالنتيجة:"""
+        prompt = f"""حول الجملة التالية من اللهجة العامية إلى اللغة العربية الفصحى:\n\"{text}\"\nالنتيجة:"""
         inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
         outputs = model.generate(**inputs, max_new_tokens=100, do_sample=True, temperature=0.7)
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
