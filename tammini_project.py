@@ -58,20 +58,35 @@ if "page" not in st.session_state:
 # Login page
 if st.session_state.page == "login":
     st.markdown('<div class="container-box">', unsafe_allow_html=True)
-    st.markdown('<div class="title">تسجيل الدخول</div>', unsafe_allow_html=True)
+    st.markdown('<div class="title">منصة طَمّني</div>', unsafe_allow_html=True)
 
-    username = st.text_input("اسم المستخدم")
-    password = st.text_input("كلمة المرور", type="password")
+    # Show option to toggle between login and register
+    page_type = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True)
 
-    if st.button("دخول"):
-        user = users_col.find_one({"username": username, "password": password})
-        if user:
-            st.session_state.user = username
-            st.session_state.page = "questions"
-            st.experimental_rerun()
-        else:
-            st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
-    st.markdown('<div class="form-note">لا تمتلك حساباً؟ <a href="#">سجّل الآن</a></div>', unsafe_allow_html=True)
+    if page_type == "تسجيل الدخول":
+        username = st.text_input("اسم المستخدم", key="login_user")
+        password = st.text_input("كلمة المرور", type="password", key="login_pass")
+
+        if st.button("دخول"):
+            user = users_col.find_one({"username": username, "password": password})
+            if user:
+                st.session_state.user = username
+                st.session_state.page = "questions"
+                st.experimental_rerun()
+            else:
+                st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
+
+    elif page_type == "تسجيل جديد":
+        new_user = st.text_input("اسم مستخدم جديد", key="signup_user")
+        new_pass = st.text_input("كلمة مرور جديدة", type="password", key="signup_pass")
+
+        if st.button("تسجيل"):
+            if users_col.find_one({"username": new_user}):
+                st.warning("هذا المستخدم مسجل بالفعل.")
+            else:
+                users_col.insert_one({"username": new_user, "password": new_pass})
+                st.success("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ----------------- Questionnaire -----------------
