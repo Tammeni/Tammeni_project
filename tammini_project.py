@@ -41,7 +41,7 @@ st.markdown("""
         font-size: 32px;
         font-weight: 700;
         color: white;
-        margin-bottom: 0;
+        margin-bottom: 10px;
     }
 
     .sub-box {
@@ -50,6 +50,12 @@ st.markdown("""
         padding: 30px;
         margin-top: 30px;
         color: black;
+    }
+
+    .note {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #eee;
     }
 
     </style>
@@ -63,6 +69,7 @@ if "page" not in st.session_state:
 if st.session_state.page == "login":
     st.markdown('''<div class="container-box">''', unsafe_allow_html=True)
     st.markdown('<div class="title">منصة طَمّني</div>', unsafe_allow_html=True)
+    st.markdown('<div class="note">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-box">', unsafe_allow_html=True)
 
     action = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True, key="action_selector")
@@ -93,6 +100,8 @@ if st.session_state.page == "login":
 
     st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+
+
 # ----------------- Questionnaire -----------------
 def questionnaire():
     st.markdown('<div class="container-box">', unsafe_allow_html=True)
