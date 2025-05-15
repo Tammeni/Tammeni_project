@@ -26,34 +26,26 @@ st.markdown("""
     }
 
     .container-box {
-        background: #2a4d9f;
+        background: white;
         border-radius: 30px;
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
         width: 80%;
         max-width: 850px;
         margin: 40px auto;
         padding: 40px;
-        color: white;
+        color: black;
         text-align: center;
-        position: relative;
-    }
-
-    .title {
-        font-size: 32px;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 10px;
     }
 
     .title-inside {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 32px;
-        font-weight: 700;
+        background: #2a4d9f;
         color: white;
-        margin: 0;
+        padding: 15px 30px;
+        border-radius: 20px;
+        font-size: 36px;
+        font-weight: 700;
+        display: inline-block;
+        margin-bottom: 10px;
     }
 
     .sub-box {
@@ -67,7 +59,7 @@ st.markdown("""
     .note {
         margin-top: 10px;
         font-size: 14px;
-        color: #eee;
+        color: #666;
         text-align: center;
     }
 
@@ -80,7 +72,8 @@ if "page" not in st.session_state:
 
 # ----------------- Login/Register Interface -----------------
 if st.session_state.page == "login":
-    st.markdown('''<div class="container-box"><div class="title-inside">منصة طَمّني</div></div>''', unsafe_allow_html=True)
+    st.markdown('<div class="container-box">', unsafe_allow_html=True)
+    st.markdown('<div class="title-inside">منصة طَمّني</div>', unsafe_allow_html=True)
     st.markdown('<div class="note">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-box">', unsafe_allow_html=True)
 
@@ -111,7 +104,7 @@ if st.session_state.page == "login":
                 st.success("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.")
 
     st.markdown('</div>', unsafe_allow_html=True)
-
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ----------------- Questionnaire -----------------
 def questionnaire():
