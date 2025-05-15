@@ -25,65 +25,57 @@ st.markdown("""
         margin: 0;
     }
 
-    .container-box {
+    .header-box {
         background: #2a4d9f;
         border-radius: 30px;
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
         width: 80%;
         max-width: 850px;
-        margin: 40px auto;
-        padding: 40px;
+        margin: 40px auto 10px;
+        padding: 30px;
         color: white;
         text-align: center;
-        position: relative;
-    }
-
-    .title {
-        font-size: 32px;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 10px;
     }
 
     .title-inside {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 32px;
+        font-size: 40px;
         font-weight: 700;
-        color: white;
-        margin: 0;
+        margin-bottom: 0;
     }
 
     .sub-box {
         background: white;
         border-radius: 20px;
         padding: 30px;
-        margin-top: 30px;
+        margin: 10px auto 30px;
+        width: 80%;
+        max-width: 850px;
         color: black;
-    }
-
-    .note {
-        margin-top: 10px;
-        font-size: 14px;
-        color: #eee;
         text-align: center;
     }
 
+    .note-inside {
+        font-size: 16px;
+        color: #444;
+        margin: 0;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# ----------------- State Setup -----------------
+# ----------------- Static UI -----------------
+st.markdown('<div class="header-box">', unsafe_allow_html=True)
+st.markdown('<div class="title-inside">منصة طَمّني</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="sub-box">', unsafe_allow_html=True)
+st.markdown('<div class="note-inside">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# ----------------- Login/Register Interface -----------------
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
-# ----------------- Login/Register Interface -----------------
 if st.session_state.page == "login":
-    st.markdown('''<div class="container-box"><div class="title-inside">منصة طَمّني</div></div>''', unsafe_allow_html=True)
-    st.markdown('<div class="note">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-box">', unsafe_allow_html=True)
-
     action = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True, key="action_selector")
 
     if action == "تسجيل الدخول":
@@ -110,7 +102,6 @@ if st.session_state.page == "login":
                 users_col.insert_one({"username": new_username, "password": new_password})
                 st.success("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
 # ----------------- Questionnaire -----------------
 def questionnaire():
     st.markdown('<div class="container-box">', unsafe_allow_html=True)
