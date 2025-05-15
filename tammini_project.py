@@ -35,6 +35,7 @@ st.markdown("""
         padding: 40px;
         color: white;
         text-align: center;
+        position: relative;
     }
 
     .title {
@@ -42,6 +43,17 @@ st.markdown("""
         font-weight: 700;
         color: white;
         margin-bottom: 10px;
+    }
+
+    .title-inside {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 32px;
+        font-weight: 700;
+        color: white;
+        margin: 0;
     }
 
     .sub-box {
@@ -56,6 +68,7 @@ st.markdown("""
         margin-top: 10px;
         font-size: 14px;
         color: #eee;
+        text-align: center;
     }
 
     </style>
@@ -67,8 +80,7 @@ if "page" not in st.session_state:
 
 # ----------------- Login/Register Interface -----------------
 if st.session_state.page == "login":
-    st.markdown('''<div class="container-box">''', unsafe_allow_html=True)
-    st.markdown('<div class="title">منصة طَمّني</div>', unsafe_allow_html=True)
+    st.markdown('''<div class="container-box"><div class="title-inside">منصة طَمّني</div></div>''', unsafe_allow_html=True)
     st.markdown('<div class="note">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-box">', unsafe_allow_html=True)
 
@@ -98,7 +110,6 @@ if st.session_state.page == "login":
                 users_col.insert_one({"username": new_username, "password": new_password})
                 st.success("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 
