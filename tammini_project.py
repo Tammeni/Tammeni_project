@@ -124,14 +124,34 @@ if "page" not in st.session_state:
     st.session_state.page = "login"
 
 if st.session_state.page == "login":
-    # call login function or login layout
+    # Call your login layout here (must be indented)
+    st.markdown('<div class="container-box">', unsafe_allow_html=True)
+    st.markdown('<div class="title">تسجيل الدخول</div>', unsafe_allow_html=True)
+    
+    username = st.text_input("اسم المستخدم")
+    password = st.text_input("كلمة المرور", type="password")
+    
+    if st.button("دخول"):
+        user = users_col.find_one({"username": username, "password": password})
+        if user:
+            st.session_state.user = username
+            st.session_state.page = "questions"
+            st.experimental_rerun()
+        else:
+            st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
+    
+    st.markdown('<div class="form-note">لا تمتلك حساباً؟ <a href="#">سجّل الآن</a></div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
 elif st.session_state.page == "questions":
-    questionnaire()  # this is where your full questionnaire() is defined
+    questionnaire()
+
 elif st.session_state.page == "result":
     st.markdown('<div class="container-box">', unsafe_allow_html=True)
     st.markdown('<div class="title">تم استلام تقييمك</div>', unsafe_allow_html=True)
     st.success("شكراً لمشاركتك. سيتم عرض النتيجة بعد تحليل البيانات.")
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 
