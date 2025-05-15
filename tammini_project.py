@@ -42,14 +42,14 @@ st.markdown("""
         font-size: 32px;
         font-weight: 700;
         color: white;
-        margin-bottom: 10px;
+        margin-bottom: 0;
     }
 
     .sub-box {
         background: white;
         border-radius: 20px;
         padding: 30px;
-        margin-top: 20px;
+        margin-top: 30px;
         color: black;
     }
 
@@ -66,7 +66,7 @@ if st.session_state.page == "login":
     st.markdown('<div class="title">منصة طَمّني</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-box">', unsafe_allow_html=True)
 
-    action = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True)
+    action = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True, key="action_selector")
 
     if action == "تسجيل الدخول":
         username = st.text_input("اسم المستخدم", key="login_username")
