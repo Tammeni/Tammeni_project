@@ -25,35 +25,37 @@ st.markdown("""
         margin: 0;
     }
 
-    .container-box {
+    .header-box {
         background: #2a4d9f;
         border-radius: 30px;
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
         width: 80%;
         max-width: 850px;
-        margin: 40px auto;
-        padding: 40px;
+        margin: 40px auto 10px;
+        padding: 30px;
         color: white;
         text-align: center;
     }
 
     .title-inside {
-        font-size: 36px;
+        font-size: 40px;
         font-weight: 700;
         margin-bottom: 10px;
     }
 
     .note-inside {
-        font-size: 14px;
-        margin-bottom: 20px;
-        color: #f0f0f0;
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: white;
     }
 
     .sub-box {
         background: white;
         border-radius: 20px;
         padding: 30px;
-        margin-top: 30px;
+        margin: 10px auto 30px;
+        width: 80%;
+        max-width: 850px;
         color: black;
     }
 
@@ -66,9 +68,10 @@ if "page" not in st.session_state:
 
 # ----------------- Login/Register Interface -----------------
 if st.session_state.page == "login":
-    st.markdown('<div class="container-box">', unsafe_allow_html=True)
+    st.markdown('<div class="header-box">', unsafe_allow_html=True)
     st.markdown('<div class="title-inside">منصة طَمّني</div>', unsafe_allow_html=True)
     st.markdown('<div class="note-inside">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-box">', unsafe_allow_html=True)
 
     action = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True, key="action_selector")
@@ -97,7 +100,6 @@ if st.session_state.page == "login":
                 users_col.insert_one({"username": new_username, "password": new_password})
                 st.success("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 # ----------------- Questionnaire -----------------
 def questionnaire():
