@@ -120,6 +120,13 @@ def questionnaire():
     st.markdown('</div>', unsafe_allow_html=True)
 
 
+if "page" not in st.session_state:
+    st.session_state.page = "login"
+
+if st.session_state.page == "login":
+    # call login function or login layout
+elif st.session_state.page == "questions":
+    questionnaire()  # this is where your full questionnaire() is defined
 elif st.session_state.page == "result":
     st.markdown('<div class="container-box">', unsafe_allow_html=True)
     st.markdown('<div class="title">تم استلام تقييمك</div>', unsafe_allow_html=True)
