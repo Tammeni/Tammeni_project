@@ -83,7 +83,7 @@ if st.session_state.page == "login":
             if user:
                 st.session_state.user = username
                 st.session_state.page = "questions"
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
 
@@ -140,7 +140,7 @@ def questionnaire():
                 "timestamp": datetime.now()
             })
             st.session_state.page = "result"
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("يرجى تعبئة جميع الإجابات.")
     st.markdown('</div>', unsafe_allow_html=True)
