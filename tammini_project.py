@@ -43,6 +43,18 @@ st.markdown("""
         margin-bottom: 0;
     }
 
+    .note-box {
+        background: white;
+        border-radius: 20px;
+        padding: 20px;
+        margin: 10px auto;
+        width: 80%;
+        max-width: 850px;
+        color: #444;
+        text-align: center;
+        font-size: 16px;
+    }
+
     .sub-box {
         background: white;
         border-radius: 20px;
@@ -53,23 +65,12 @@ st.markdown("""
         color: black;
         text-align: center;
     }
-
-    .note-inside {
-        font-size: 16px;
-        color: #444;
-        margin: 0;
-    }
     </style>
 """, unsafe_allow_html=True)
 
 # ----------------- Static UI -----------------
-st.markdown('<div class="header-box">', unsafe_allow_html=True)
-st.markdown('<div class="title-inside">منصة طَمّني</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('<div class="sub-box">', unsafe_allow_html=True)
-st.markdown('<div class="note-inside">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('<div class="header-box"><div class="title-inside">منصة طَمّني</div></div>', unsafe_allow_html=True)
+st.markdown('<div class="note-box">هذه المنصة لا تُغني عن تشخيص الطبيب المختص، بل تهدف إلى دعم قراره بشكل مبدئي.</div>', unsafe_allow_html=True)
 
 # ----------------- Login/Register Interface -----------------
 if "page" not in st.session_state:
@@ -104,11 +105,13 @@ if st.session_state.page == "login":
 
 # ----------------- Questionnaire -----------------
 def questionnaire():
-    st.markdown('<div class="container-box">', unsafe_allow_html=True)
-    st.markdown('<div class="title">التقييم النفسي</div>', unsafe_allow_html=True)
+    st.markdown('<div class="header-box">', unsafe_allow_html=True)
+    st.markdown('<div class="title-inside">التقييم النفسي</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     gender = st.radio("ما هو جنسك؟", ["ذكر", "أنثى"])
     age = st.radio("ما هي فئتك العمرية؟", ["18-29", "30-39", "40-49", "50+"])
+
 
     questions = [
         """س1: هل مررت بفترة استمرت أسبوعين أو أكثر كنت تعاني خلالها من خمسة أعراض أو أكثر مما يلي، مع ضرورة وجود عرض المزاج المكتئب أو فقدان الشغف والاهتمام بالأنشطة التي كنت تستمتع بها سابقًا؟
@@ -143,7 +146,6 @@ def questionnaire():
             st.rerun()
         else:
             st.error("يرجى تعبئة جميع الإجابات.")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # ----------------- Main Page Routing -----------------
 
@@ -151,7 +153,8 @@ if st.session_state.page == "questions":
     questionnaire()
 
 elif st.session_state.page == "result":
-    st.markdown('<div class="container-box">', unsafe_allow_html=True)
-    st.markdown('<div class="title">تم استلام تقييمك</div>', unsafe_allow_html=True)
-    st.success("شكراً لمشاركتك. سيتم عرض النتيجة بعد تحليل البيانات.")
+    st.markdown('<div class="header-box">', unsafe_allow_html=True)
+    st.markdown('<div class="title-inside">تم استلام تقييمك</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+    st.success("شكراً لمشاركتك. سيتم عرض النتيجة بعد تحليل البيانات.")
+
