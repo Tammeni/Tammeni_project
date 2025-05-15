@@ -1,69 +1,14 @@
 import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
-import pandas as pd
-import joblib
-import re
-import torch
-from sentence_transformers import SentenceTransformer
-from sentence_transformers.util import cos_sim
-from nltk.corpus import stopwords
-from nltk.stem.isri import ISRIStemmer
-import nltk
 
-# ----------------- NLTK Setup -----------------
-nltk.download('stopwords')
-arabic_stopwords = set(stopwords.words('arabic'))
-stemmer = ISRIStemmer()
 # ----------------- MongoDB Connection -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
 client = MongoClient(uri)
 db = client["tammini_db"]
 users_col = db["users"]
 responses_col = db["responses"]
-# ----------------- Load Trained Models -----------------
-rfc_dep = joblib.load("rfc_dep.pkl")
-rfc_anx = joblib.load("rfc_anx.pkl")
-DepEncoder = {0: "Healthy", 1: "Depression"}
-AnxEncoder = {0: "Healthy", 1: "Anxiety"}
-# ----------------- SBERT Model -----------------
-Sbert = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1')
 
-# ----------------- Preprocessing Functions -----------------
-def clean_text(text):
-    text = re.sub(r"[\'\"\n\d,;.،؛.؟]", ' ', text)
-    text = re.sub(r"[ؐ-ًؚٟ]*", '', text)
-    text = re.sub(r"\s{2,}", ' ', text)
-    text = re.sub(r"[\u064B-\u0652]", '', text)
-    text = re.sub(r"[إأآا]", 'ا', text)
-    return text.replace('ة','ه').replace('ى','ي').replace('ؤ','و').replace('ئ','ي').strip()
-
-def clean_and_stem_arabic(text):
-    tokens = re.sub(r"[^\u0600-\u06FF\s]", '', text).split()
-    filtered = [t for t in tokens if t not in arabic_stopwords]
-    return ' '.join([stemmer.stem(word) for word in filtered])
-
-def encode_Sbert(questions, answers):
-    questions = [clean_and_stem_arabic(clean_text(q)) for q in questions]
-    answers = [clean_and_stem_arabic(clean_text(a)) for a in answers]
-    q_embeddings = Sbert.encode(questions, convert_to_tensor=True, normalize_embeddings=True)
-    a_embeddings = Sbert.encode(answers, convert_to_tensor=True, normalize_embeddings=True)
-    similarities = cos_sim(q_embeddings, a_embeddings).diagonal().tolist()
-    return pd.DataFrame([similarities], columns=[f"Q{i+1}_sim" for i in range(len(similarities))])
-
-def get_score(model, X_test):
-    return model.predict_proba(X_test)
-
-def analyze_user_responses(questions, answers):
-    encoded = encode_Sbert(questions, answers)
-    dep_probs = get_score(rfc_dep, encoded)[0]
-    anx_probs = get_score(rfc_anx, encoded)[0]
-    return {
-        "Depression": round(dep_probs[1]*100, 2),
-        "Anxiety": round(anx_probs[1]*100, 2),
-        "Healthy (Depression Model)": round(dep_probs[0]*100, 2),
-        "Healthy (Anxiety Model)": round(anx_probs[0]*100, 2)
-    }
 # ----------------- Page Setup -----------------
 st.set_page_config(page_title="منصة طَمّني", layout="centered")
 
@@ -183,44 +128,32 @@ def questionnaire():
         """س6: هل يترافق مع التفكير المفرط أو القلق المستمر ثلاثة أعراض أو أكثر من الأعراض التالية: الشعور بعدم الارتياح أو بضغط نفسي كبير، الإحساس بالتعب والإرهاق بسهولة، صعوبة واضحة في التركيز، الشعور بالعصبية الزائدة، شد عضلي مزمن، اضطرابات في النوم، وغيرها؟ 
 اذكر كل عرض تعاني منه وهل يؤثر على مهامك اليومية مثل العمل أو الدراسة أو حياتك الاجتماعية؟ وكيف يؤثر عليك بشكل يومي؟"""
     ]
-    answers = [st.text_area(q, key=f"q{i}") for i, q in enumerate(questions)]
+    answers = []
+    for i, q in enumerate(questions):
+        answers.append(st.text_area(f"{q}", key=f"q{i}"))
 
     if st.button("إرسال"):
         if all(ans.strip() for ans in answers):
-            result = analyze_user_responses(questions, answers)
-            diagnosis_text = f"""
-            - نسبة الاكتئاب: {result['Depression']}٪  
-            - نسبة القلق: {result['Anxiety']}٪  
-            - نسبة السليم (نموذج الاكتئاب): {result['Healthy (Depression Model)']}٪  
-            - نسبة السليم (نموذج القلق): {result['Healthy (Anxiety Model)']}٪
-            """
-
             responses_col.insert_one({
                 "username": st.session_state.get("user", "مستخدم مجهول"),
                 "gender": gender,
                 "age": age,
                 **{f"q{i+1}": ans for i, ans in enumerate(answers)},
-                "result": diagnosis_text,
+                "result": "قيد المعالجة",
                 "timestamp": datetime.now()
             })
-            st.session_state.result_text = diagnosis_text
             st.session_state.page = "result"
             st.rerun()
         else:
             st.error("يرجى تعبئة جميع الإجابات.")
 
-def show_results():
-    st.markdown('<div class="header-box"><div class="title-inside">تم استلام تقييمك</div></div>', unsafe_allow_html=True)
-    st.success("شكراً لمشاركتك. فيما يلي نتائج التحليل:")
-    st.info(st.session_state.get("result_text", "لا توجد نتائج."))
+# ----------------- Main Page Routing -----------------
 
-# ----------------- Routing -----------------
-if st.session_state.page == "login":
-    # show_login_register()
-    pass  # (insert login code)
-
-elif st.session_state.page == "questions":
+if st.session_state.page == "questions":
     questionnaire()
 
 elif st.session_state.page == "result":
-    show_results()
+    st.markdown('<div class="header-box">', unsafe_allow_html=True)
+    st.markdown('<div class="title-inside">تم استلام تقييمك</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    st.success("شكراً لمشاركتك. سيتم عرض النتيجة بعد تحليل البيانات.")
