@@ -1,3 +1,4 @@
+# Re-run after kernel reset to restore MongoDB login UI
 import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
@@ -12,7 +13,7 @@ responses_col = db["responses"]
 # Page configuration
 st.set_page_config(page_title="منصة طَمّني", layout="centered")
 
-# Arabic UI styles
+# Arabic UI styling
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -21,75 +22,85 @@ st.markdown("""
         font-family: 'Cairo', sans-serif;
         direction: rtl;
         background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+        padding: 0;
+        margin: 0;
     }
 
     .container-box {
-        background: white;
+        background: #2a4d9f;
         border-radius: 30px;
         box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
         width: 80%;
         max-width: 850px;
         margin: 40px auto;
         padding: 40px;
+        color: white;
+        text-align: center;
     }
 
     .title {
         font-size: 32px;
         font-weight: 700;
-        text-align: center;
-        color: #333;
-        margin-bottom: 20px;
+        color: white;
+        margin-bottom: 10px;
+    }
+
+    .sub-box {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-top: 20px;
+        color: black;
     }
 
     .form-note {
-        text-align: center;
         font-size: 14px;
         margin-top: 10px;
-        color: #666;
+        color: #333;
     }
 
     </style>
 """, unsafe_allow_html=True)
 
-# Navigation logic
+# Navigation state
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
-# Login page
+# ========== LOGIN OR REGISTER ==========
 if st.session_state.page == "login":
     st.markdown('<div class="container-box">', unsafe_allow_html=True)
     st.markdown('<div class="title">منصة طَمّني</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-box">', unsafe_allow_html=True)
 
-    # Show option to toggle between login and register
-    page_type = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True)
+    action = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True)
 
-    if page_type == "تسجيل الدخول":
-        username = st.text_input("اسم المستخدم", key="login_user")
-        password = st.text_input("كلمة المرور", type="password", key="login_pass")
+    if action == "تسجيل الدخول":
+        username = st.text_input("اسم المستخدم", key="login_username")
+        password = st.text_input("كلمة المرور", type="password", key="login_password")
 
-        if st.button("دخول"):
+        if st.button("دخول", key="login_btn"):
             user = users_col.find_one({"username": username, "password": password})
             if user:
                 st.session_state.user = username
                 st.session_state.page = "questions"
                 st.experimental_rerun()
             else:
-                st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
+                st.error("بيانات الدخول غير صحيحة.")
 
-    elif page_type == "تسجيل جديد":
-        new_user = st.text_input("اسم مستخدم جديد", key="signup_user")
-        new_pass = st.text_input("كلمة مرور جديدة", type="password", key="signup_pass")
+    elif action == "تسجيل جديد":
+        new_username = st.text_input("اسم مستخدم جديد", key="register_username")
+        new_password = st.text_input("كلمة مرور جديدة", type="password", key="register_password")
 
-        if st.button("تسجيل"):
-            if users_col.find_one({"username": new_user}):
-                st.warning("هذا المستخدم مسجل بالفعل.")
+        if st.button("تسجيل", key="register_btn"):
+            if users_col.find_one({"username": new_username}):
+                st.warning("اسم المستخدم مسجل مسبقاً.")
             else:
-                users_col.insert_one({"username": new_user, "password": new_pass})
+                users_col.insert_one({"username": new_username, "password": new_password})
                 st.success("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.")
 
     st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# ----------------- Questionnaire -----------------
 # ----------------- Questionnaire -----------------
 def questionnaire():
     st.markdown('<div class="container-box">', unsafe_allow_html=True)
