@@ -3,17 +3,17 @@ import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
 
-# MongoDB setup
+# ----------------- MongoDB Connection -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
 client = MongoClient(uri)
 db = client["tammini_db"]
 users_col = db["users"]
 responses_col = db["responses"]
 
-# Page configuration
+# ----------------- Page Setup -----------------
 st.set_page_config(page_title="منصة طَمّني", layout="centered")
 
-# Arabic UI styling
+# ----------------- Arabic Styling -----------------
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -53,22 +53,16 @@ st.markdown("""
         color: black;
     }
 
-    .form-note {
-        font-size: 14px;
-        margin-top: 10px;
-        color: #333;
-    }
-
     </style>
 """, unsafe_allow_html=True)
 
-# Navigation state
+# ----------------- State Setup -----------------
 if "page" not in st.session_state:
     st.session_state.page = "login"
 
-# ========== LOGIN OR REGISTER ==========
+# ----------------- Login/Register Interface -----------------
 if st.session_state.page == "login":
-    st.markdown('<div class="container-box">', unsafe_allow_html=True)
+    st.markdown('''<div class="container-box">''', unsafe_allow_html=True)
     st.markdown('<div class="title">منصة طَمّني</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-box">', unsafe_allow_html=True)
 
@@ -85,7 +79,7 @@ if st.session_state.page == "login":
                 st.session_state.page = "questions"
                 st.experimental_rerun()
             else:
-                st.error("بيانات الدخول غير صحيحة.")
+                st.error("اسم المستخدم أو كلمة المرور غير صحيحة.")
 
     elif action == "تسجيل جديد":
         new_username = st.text_input("اسم مستخدم جديد", key="register_username")
@@ -98,8 +92,8 @@ if st.session_state.page == "login":
                 users_col.insert_one({"username": new_username, "password": new_password})
                 st.success("تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)  # Close sub-box
+    st.markdown('</div>', unsafe_allow_html=True)  # Close container-box
 
 # ----------------- Questionnaire -----------------
 def questionnaire():
