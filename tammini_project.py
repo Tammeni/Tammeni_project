@@ -172,6 +172,22 @@ elif st.session_state.page == "result":
     st.success("شكراً لمشاركتك. سيتم عرض النتيجة بعد تحليل البيانات.")
     st.markdown('</div>', unsafe_allow_html=True)
 
+# ----------------- Main Page Routing -----------------
+
+if "page" not in st.session_state:
+    st.session_state.page = "login"
+
+if st.session_state.page == "login":
+    pass  # already handled above
+
+elif st.session_state.page == "questions":
+    questionnaire()
+
+elif st.session_state.page == "result":
+    st.markdown('<div class="container-box">', unsafe_allow_html=True)
+    st.markdown('<div class="title">تم استلام تقييمك</div>', unsafe_allow_html=True)
+    st.success("شكراً لمشاركتك. سيتم عرض النتيجة بعد تحليل البيانات.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 
