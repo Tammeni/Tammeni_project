@@ -32,7 +32,7 @@ from sentence_transformers import SentenceTransformer
 import os
 
 model_path = os.path.join(os.getcwd(), 'sbert_model', 'sbert_model')  # Note the double path
-Sbert = SentenceTransformer(model_path)
+Sbert = SentenceTransformer(model_path, device="cpu")
 
 
 # Text Preprocessing
