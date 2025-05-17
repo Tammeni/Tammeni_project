@@ -242,15 +242,16 @@ def questionnaire():
             st.error("يرجى تعبئة جميع الإجابات.")
 # ----------------- Main Page Routing -----------------
 
+if st.session_state.page == "questions":
+    questionnaire()
+
 elif st.session_state.page == "result":
-    # Get latest response from the current user
     latest_doc = responses_col.find_one(
         {"username": st.session_state.get("user")},
         sort=[("timestamp", -1)]
     )
 
     if latest_doc:
-        # Extract answers
         answers = [
             latest_doc.get("q1", ""),
             latest_doc.get("q2", ""),
@@ -260,10 +261,8 @@ elif st.session_state.page == "result":
             latest_doc.get("q6", "")
         ]
 
-        # Run analysis
         result = analyze_user_responses(answers)
 
-        # Update MongoDB with results
         responses_col.update_one(
             {"_id": latest_doc["_id"]},
             {"$set": {
@@ -275,7 +274,6 @@ elif st.session_state.page == "result":
             }}
         )
 
-        # Display results
         st.markdown('<div class="header-box">', unsafe_allow_html=True)
         st.markdown('<div class="title-inside">نتيجة التحليل</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
@@ -290,4 +288,3 @@ elif st.session_state.page == "result":
         """)
     else:
         st.warning("لم يتم العثور على إجابات لعرضها.")
-
