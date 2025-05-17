@@ -1,6 +1,20 @@
 import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
+import pandas as pd
+import joblib
+import re
+import torch
+from sentence_transformers import SentenceTransformer
+from sentence_transformers.util import cos_sim
+from nltk.corpus import stopwords
+from nltk.stem.isri import ISRIStemmer
+import nltk
+
+nltk.download('stopwords')
+arabic_stopwords = set(stopwords.words('arabic'))
+stemmer = ISRIStemmer()
+
 
 # ----------------- MongoDB Connection -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
