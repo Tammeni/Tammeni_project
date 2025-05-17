@@ -8,6 +8,59 @@ client = MongoClient(uri)
 db = client["tammini_db"]
 users_col = db["users"]
 responses_col = db["responses"]
+#--------------model----------------
+# Load Trained Models
+svm_dep = joblib.load("SVM_DEPRESSION_FIXED.pkl")
+svm_anx = joblib.load("SVM_ANXIETY_FIXED.pkl")
+
+# SBERT Model
+Sbert = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1')
+
+# Text Preprocessing
+
+def clean_text(text):
+    cleaned = re.sub(r"[\'\"\n\d,;.،؛.؟]", ' ', text)
+    cleaned = re.sub(r"\s{2,}", ' ', cleaned)
+    emoji_pattern = re.compile("["
+    u"\U0001F600-\U0001F64F"  # emoticons
+    u"\U0001F300-\U0001F5FF"  # symbols
+    u"\U0001F680-\U0001F6FF"  # transport
+    u"\U0001F1E0-\U0001F1FF"  # flags
+    u"\U00002702-\U000027B0"
+    u"\U000024C2-\U0001F251"]+", flags=re.UNICODE)
+    cleaned = emoji_pattern.sub(r'', cleaned)
+    cleaned = re.sub(r'[\u064B-\u0652]', '', cleaned)
+    cleaned = re.sub(r'[إأآا]', 'ا', cleaned)
+    cleaned = cleaned.replace('ة','ه').replace('ى','ي').replace('ؤ','و').replace('ئ','ي')
+    return cleaned.strip()
+
+def encode_Sbert(questions, answers):
+    questions = [clean_text(q) for q in questions]
+    answers = [clean_text(a) for a in answers]
+    q_emb = Sbert.encode(questions, convert_to_tensor=True, normalize_embeddings=True)
+    a_emb = Sbert.encode(answers, convert_to_tensor=True, normalize_embeddings=True)
+    similarities = cos_sim(q_emb, a_emb).diagonal().tolist()
+    return pd.DataFrame([similarities], columns=[f"Q{i+1}_sim" for i in range(len(similarities))])
+
+def get_score(model, X_test):
+    return model.predict_proba(X_test)
+
+def analyze_user_responses(answers):
+    questions_dep = answers[:3]
+    dep_encoded = encode_Sbert(questions_dep, answers[:3])
+    dep_score = get_score(svm_dep, dep_encoded)[0]
+
+    questions_anx = answers[2:6]
+    anx_encoded = encode_Sbert(questions_anx, answers[2:6])
+    anx_score = get_score(svm_anx, anx_encoded)[0]
+
+    return {
+        "Depression": round(dep_score[0] * 100, 2),
+        "Healthy (Dep)": round(dep_score[1] * 100, 2),
+        "Anxiety": round(anx_score[0] * 100, 2),
+        "Healthy (Anx)": round(anx_score[1] * 100, 2)
+    }
+
 
 # ----------------- Page Setup -----------------
 st.set_page_config(page_title="منصة طَمّني", layout="centered")
@@ -134,6 +187,7 @@ def questionnaire():
 
     if st.button("إرسال"):
         if all(ans.strip() for ans in answers):
+            # Save raw responses to DB
             responses_col.insert_one({
                 "username": st.session_state.get("user", "مستخدم مجهول"),
                 "gender": gender,
@@ -142,18 +196,78 @@ def questionnaire():
                 "result": "قيد المعالجة",
                 "timestamp": datetime.now()
             })
+
+            # Convert answers to DataFrame for AI pipeline
+            df_user = pd.DataFrame([answers], columns=[f"q{i+1}" for i in range(len(answers))])
+
+            # Run AI analysis
+            result = analyze_user_responses([q.strip() for q in questions], answers)
+
+            # Update the most recent response entry with AI scores
+            responses_col.update_one(
+                {"username": st.session_state.get("user"), "timestamp": {"$exists": True}},
+                {"$set": {
+                    "Depression %": result["Depression"],
+                    "Anxiety %": result["Anxiety"],
+                    "Healthy (Depression Model) %": result["Healthy (Depression Model)"],
+                    "Healthy (Anxiety Model) %": result["Healthy (Anxiety Model)"],
+                    "result": "تم التحليل"
+                }},
+                sort=[("timestamp", -1)]
+            )
+
             st.session_state.page = "result"
             st.rerun()
         else:
             st.error("يرجى تعبئة جميع الإجابات.")
-
 # ----------------- Main Page Routing -----------------
 
-if st.session_state.page == "questions":
-    questionnaire()
-
 elif st.session_state.page == "result":
-    st.markdown('<div class="header-box">', unsafe_allow_html=True)
-    st.markdown('<div class="title-inside">تم استلام تقييمك</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.success("شكراً لمشاركتك. سيتم عرض النتيجة بعد تحليل البيانات.")
+    # Get latest response from the current user
+    latest_doc = responses_col.find_one(
+        {"username": st.session_state.get("user")},
+        sort=[("timestamp", -1)]
+    )
+
+    if latest_doc:
+        # Extract answers
+        answers = [
+            latest_doc.get("q1", ""),
+            latest_doc.get("q2", ""),
+            latest_doc.get("q3", ""),
+            latest_doc.get("q4", ""),
+            latest_doc.get("q5", ""),
+            latest_doc.get("q6", "")
+        ]
+
+        # Run analysis
+        result = analyze_user_responses(answers)
+
+        # Update MongoDB with results
+        responses_col.update_one(
+            {"_id": latest_doc["_id"]},
+            {"$set": {
+                "Depression %": result["Depression"],
+                "Anxiety %": result["Anxiety"],
+                "Healthy (Dep) %": result["Healthy (Dep)"],
+                "Healthy (Anx) %": result["Healthy (Anx)"],
+                "result": "تم التحليل"
+            }}
+        )
+
+        # Display results
+        st.markdown('<div class="header-box">', unsafe_allow_html=True)
+        st.markdown('<div class="title-inside">نتيجة التحليل</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.success("✅ تم تحليل إجاباتك بنجاح بناءً على نموذج الذكاء الاصطناعي.")
+
+        st.markdown(f"""
+        - 🔹 نسبة الاكتئاب: `{result['Depression']}٪`  
+        - 🔹 نسبة القلق: `{result['Anxiety']}٪`  
+        - 🔹 نسبة السليم (نموذج الاكتئاب): `{result['Healthy (Dep)']}٪`  
+        - 🔹 نسبة السليم (نموذج القلق): `{result['Healthy (Anx)']}٪`  
+        """)
+    else:
+        st.warning("لم يتم العثور على إجابات لعرضها.")
+
