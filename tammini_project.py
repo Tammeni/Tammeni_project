@@ -239,15 +239,13 @@ def questionnaire():
             responses_col.update_one(
                 {"username": st.session_state.get("user"), "timestamp": {"$exists": True}},
                 {"$set": {
-                    "Depression %": result["Depression"],
-                    "Anxiety %": result["Anxiety"],
-                    "Healthy (Depression Model) %": result["Healthy (Depression Model)"],
-                    "Healthy (Anxiety Model) %": result["Healthy (Anxiety Model)"],
+                    "نسبة الاكتئاب": result["Depression"],
+                    "نسبة القلق": result["Anxiety"],
+                    "نسبة السليم": result["Healthy"],
                     "result": "تم التحليل"
                 }},
                 sort=[("timestamp", -1)]
             )
-
             st.session_state.page = "result"
             st.rerun()
         else:
