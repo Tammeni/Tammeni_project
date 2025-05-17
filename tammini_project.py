@@ -226,7 +226,8 @@ def questionnaire():
             df_user = pd.DataFrame([answers], columns=[f"q{i+1}" for i in range(len(answers))])
 
             # Run AI analysis
-            result = analyze_user_responses([q.strip() for q in questions], answers)
+            result = analyze_user_responses(answers)
+
 
             # Update the most recent response entry with AI scores
             responses_col.update_one(
