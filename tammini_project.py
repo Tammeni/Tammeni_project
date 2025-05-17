@@ -70,21 +70,27 @@ def encode_Sbert(questions, answers):
 def get_score(model, X_test):
     return model.predict_proba(X_test)
 
+
+
 def analyze_user_responses(answers):
     questions_dep = answers[:3]
     dep_encoded = encode_Sbert(questions_dep, answers[:3])
-    dep_score = get_score(svm_dep, dep_encoded)[0]
+    dep_score = get_score(svm_dep, dep_encoded)[0]  # [Depression, Healthy]
 
     questions_anx = answers[2:6]
     anx_encoded = encode_Sbert(questions_anx, answers[2:6])
-    anx_score = get_score(svm_anx, anx_encoded)[0]
+    anx_score = get_score(svm_anx, anx_encoded)[0]  # [Anxiety, Healthy]
+
+    healthy_avg = (dep_score[1] + anx_score[1]) / 2
 
     return {
         "Depression": round(dep_score[0] * 100, 2),
-        "Healthy (Dep)": round(dep_score[1] * 100, 2),
         "Anxiety": round(anx_score[0] * 100, 2),
-        "Healthy (Anx)": round(anx_score[1] * 100, 2)
+        "Healthy": round(healthy_avg * 100, 2)
     }
+
+
+
 
 
 # ----------------- Page Setup -----------------
@@ -272,10 +278,9 @@ elif st.session_state.page == "result":
         responses_col.update_one(
             {"_id": latest_doc["_id"]},
             {"$set": {
-                "Depression %": result["Depression"],
-                "Anxiety %": result["Anxiety"],
-                "Healthy (Dep) %": result["Healthy (Dep)"],
-                "Healthy (Anx) %": result["Healthy (Anx)"],
+                "نسبة الاكتئاب": result["Depression"],
+                "نسبة القلق": result["Anxiety"],
+                "نسبة السليم": result["Healthy"],
                 "result": "تم التحليل"
             }}
         )
@@ -283,14 +288,17 @@ elif st.session_state.page == "result":
         st.markdown('<div class="header-box">', unsafe_allow_html=True)
         st.markdown('<div class="title-inside">نتيجة التحليل</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
-        st.success("✅ تم تحليل إجاباتك بنجاح بناءً على نموذج الذكاء الاصطناعي.")
+        st.success("✅ تم تحليل إجاباتك بنجاح بواسطة نموذج الذكاء الاصطناعي.")
 
         st.markdown(f"""
-        - 🔹 نسبة الاكتئاب: `{result['Depression']}٪`  
-        - 🔹 نسبة القلق: `{result['Anxiety']}٪`  
-        - 🔹 نسبة السليم (نموذج الاكتئاب): `{result['Healthy (Dep)']}٪`  
-        - 🔹 نسبة السليم (نموذج القلق): `{result['Healthy (Anx)']}٪`  
+        ### 🧠 نتائج التحليل:
+        - 🔴 **نسبة الاكتئاب**: `{result['Depression']}٪`
+        - 🔵 **نسبة القلق**: `{result['Anxiety']}٪`
+        - 🟢 **نسبة السليم (المتوسط)**: `{result['Healthy']}٪`
+        📌 **تنويه**: هذه النسب تقديرية فقط، ويُفضل استشارة مختص نفسي لتأكيد التشخيص.
         """)
+
+
+      
     else:
         st.warning("لم يتم العثور على إجابات لعرضها.")
