@@ -28,7 +28,15 @@ svm_dep = joblib.load("SVM_DEPRESSION_FIXED.pkl")
 svm_anx = joblib.load("SVM_ANXIETY_FIXED.pkl")
 
 # SBERT Model
-Sbert = SentenceTransformer('./sbert_model')
+import streamlit as st
+from sentence_transformers import SentenceTransformer
+
+@st.cache_resource(show_spinner="Loading SBERT model...")
+def load_sbert():
+    return SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1')
+
+Sbert = load_sbert()
+
 
 # Text Preprocessing
 
