@@ -236,16 +236,22 @@ def questionnaire():
 
 
             # Update the most recent response entry with AI scores
-            responses_col.update_one(
-                {"username": st.session_state.get("user"), "timestamp": {"$exists": True}},
-                {"$set": {
-                    "نسبة الاكتئاب": result["Depression"],
-                    "نسبة القلق": result["Anxiety"],
-                    "نسبة السليم": result["Healthy"],
-                    "result": "تم التحليل"
-                }},
+            latest_doc = responses_col.find_one(
+                {"username": st.session_state.get("user")},
                 sort=[("timestamp", -1)]
             )
+            if latest_doc:
+                responses_col.update_one(
+                    {"_id": latest_doc["_id"]},
+                    {"$set": {
+                        "نسبة الاكتئاب": result["Depression"],
+                        "نسبة القلق": result["Anxiety"],
+                        "نسبة السليم": result["Healthy"],
+                        "result": "تم التحليل"
+                    }}
+                )
+
+            
             st.session_state.page = "result"
             st.rerun()
         else:
