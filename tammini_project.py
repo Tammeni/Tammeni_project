@@ -28,10 +28,11 @@ svm_dep = joblib.load("SVM_DEPRESSION_FIXED.pkl")
 svm_anx = joblib.load("SVM_ANXIETY_FIXED.pkl")
 
 # SBERT Model
+
 from sentence_transformers import SentenceTransformer
 import os
 
-model_path = os.path.join(os.getcwd(), 'sbert_model', 'sbert_model')  # Fix nested path
+model_path = os.path.join(os.getcwd(), 'sbert_model')
 Sbert = SentenceTransformer(model_path)
 
 # Text Preprocessing
