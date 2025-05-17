@@ -31,9 +31,8 @@ svm_anx = joblib.load("SVM_ANXIETY_FIXED.pkl")
 from sentence_transformers import SentenceTransformer
 import os
 
-model_path = os.path.join(os.getcwd(), 'sbert_model', 'sbert_model')  # Note the double path
-Sbert = SentenceTransformer(model_path, device="cpu")
-
+model_path = os.path.join(os.getcwd(), 'sbert_model')
+Sbert = SentenceTransformer(model_path)
 
 # Text Preprocessing
 
