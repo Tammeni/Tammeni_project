@@ -21,7 +21,7 @@ db = client["tammini_db"]
 users_col = db["users"]
 responses_col = db["responses"]
 #--------------model----------------
-# Load Trained Models
+
 svm_dep = joblib.load("SVM_DEPRESSION_FINAL.pkl")
 svm_anx = joblib.load("SVM_ANXIETY_FINAL.pkl")
 
