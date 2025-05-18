@@ -32,7 +32,8 @@ import os
 import torch
 
 model_path = os.path.join(os.getcwd(), 'sbert_model1')
-Sbert = SentenceTransformer(model_path, device='cpu')  
+Sbert = SentenceTransformer(model_path)
+Sbert._target_device = torch.device("cpu")  # Force all embeddings to run on CPU
 
 
 # Text Preprocessing
