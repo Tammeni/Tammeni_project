@@ -75,22 +75,24 @@ def get_score(model, X_test):
 
 
 
-def analyze_user_responses(answers):
-    questions_dep = answers[:3]
-    dep_encoded = encode_Sbert(questions_dep, answers[:3])
-    dep_score = get_score(svm_dep, dep_encoded)[0]  # [Depression, Healthy]
+def analyze_user_responses(answers, questions):
+    questions_dep = questions[:3]
+    questions_anx = questions[2:6]
 
-    questions_anx = answers[2:6]
+    dep_encoded = encode_Sbert(questions_dep, answers[:3])
+    dep_score = get_score(svm_dep, dep_encoded)[0]
+
     anx_encoded = encode_Sbert(questions_anx, answers[2:6])
-    anx_score = get_score(svm_anx, anx_encoded)[0]  # [Anxiety, Healthy]
+    anx_score = get_score(svm_anx, anx_encoded)[0]
 
     healthy_avg = (dep_score[1] + anx_score[1]) / 2
 
     return {
-        "Depression": round(dep_score[0] * 100, 2),
-        "Anxiety": round(anx_score[0] * 100, 2),
-        "Healthy": round(healthy_avg * 100, 2)
+        "Depression": int(dep_score[0] * 100),
+        "Anxiety": int(anx_score[0] * 100),
+        "Healthy": int(healthy_avg * 100)
     }
+
 
 
 
@@ -235,7 +237,7 @@ def questionnaire():
             df_user = pd.DataFrame([answers], columns=[f"q{i+1}" for i in range(len(answers))])
 
             # Run AI analysis
-            result = analyze_user_responses(answers)
+            result = analyze_user_responses(answers, questions)
 
 
             # Update the most recent response entry with AI scores
@@ -299,9 +301,9 @@ elif st.session_state.page == "result":
 
         st.markdown(f"""
         ### 🧠 نتائج التحليل:
-        - 🔴 **نسبة الاكتئاب**: `{result['Depression']}٪`
-        - 🔵 **نسبة القلق**: `{result['Anxiety']}٪`
-        - 🟢 **نسبة السليم (المتوسط)**: `{result['Healthy']}٪`
+        -  **نسبة الاكتئاب**: `{result['Depression']}%`
+        -  **نسبة القلق**: `{result['Anxiety']}%`
+        - **نسبة السليم**: `{result['Healthy']}%`
         📌 **تنويه**: هذه النسب تقديرية فقط، ويُفضل استشارة مختص نفسي لتأكيد التشخيص.
         """)
 
