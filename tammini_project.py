@@ -24,8 +24,8 @@ users_col = db["users"]
 responses_col = db["responses"]
 #--------------model----------------
 # Load Trained Models
-svm_dep = joblib.load("SVM_DEPRESSION_FIXED.pkl")
-svm_anx = joblib.load("SVM_ANXIETY_FIXED.pkl")
+svm_dep = joblib.load("SVM_DEPRESSION_FINAL(1).pkl")
+svm_anx = joblib.load("SVM_ANXIETY_FINAL(1).pkl")
 
 # SBERT Model
 
