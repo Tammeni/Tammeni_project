@@ -90,8 +90,7 @@ def analyze_user_responses(answers, questions):
     return {
         "Depression": int(dep_score[0] * 100),
         "Anxiety": int(anx_score[0] * 100),
-        "Healthy": int(healthy_avg * 100)
-    }
+       }
 
 
 
@@ -313,14 +312,15 @@ elif st.session_state.page == "result":
         st.markdown('<div class="title-inside">نتيجة التحليل</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
         st.success("✅ تم تحليل إجاباتك بنجاح بواسطة نموذج الذكاء الاصطناعي.")
-
         st.markdown(f"""
         ### 🧠 نتائج التحليل:
         -  **نسبة الاكتئاب**: `{result['Depression']}%`
         -  **نسبة القلق**: `{result['Anxiety']}%`
-        - **نسبة السليم**: `{result['Healthy']}%`
         📌 **تنويه**: هذه النسب تقديرية فقط، ويُفضل استشارة مختص نفسي لتأكيد التشخيص.
         """)
+
+
+        
 
 
       
