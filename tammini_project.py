@@ -31,7 +31,7 @@ from sentence_transformers import SentenceTransformer
 import os
 import torch
 
-model_path = os.path.join(os.getcwd(), 'sbert_model1')
+model_path = os.path.join(os.getcwd(), 'sbert_model3')
 Sbert = SentenceTransformer(model_path)
 Sbert._target_device = torch.device("cpu")  # Force all embeddings to run on CPU
 
