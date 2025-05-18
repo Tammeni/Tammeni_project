@@ -33,7 +33,10 @@ from sentence_transformers import SentenceTransformer
 import os
 
 model_path = os.path.join(os.getcwd(), 'sbert_model1')
+
+# Force CPU loading — avoids .to(device) crash
 Sbert = SentenceTransformer(model_path)
+Sbert._target_device = torch.device("cpu")
 
 # Text Preprocessing
 
