@@ -76,19 +76,14 @@ def get_score(model, X_test):
 def analyze_user_responses(answers, questions):
     questions_dep = questions[:3]
     questions_anx = questions[2:6]
-
     dep_encoded = encode_Sbert(questions_dep, answers[:3])
     dep_score = get_score(svm_dep, dep_encoded)[0]
-
     anx_encoded = encode_Sbert(questions_anx, answers[2:6])
     anx_score = get_score(svm_anx, anx_encoded)[0]
-
-    healthy_avg = (dep_score[1] + anx_score[1]) / 2
-
     return {
         "Depression": int(dep_score[0] * 100),
-        "Anxiety": int(anx_score[0] * 100),
-       }
+        "Anxiety": int(anx_score[0] * 100)
+    }
 
 
 
