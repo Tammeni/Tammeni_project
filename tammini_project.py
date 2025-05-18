@@ -282,7 +282,8 @@ elif st.session_state.page == "result":
             latest_doc.get("q6", "")
         ]
 
-        result = analyze_user_responses(answers)
+        result = analyze_user_responses(answers, questions)
+
 
         responses_col.update_one(
             {"_id": latest_doc["_id"]},
