@@ -11,9 +11,7 @@ from nltk.corpus import stopwords
 from nltk.stem.isri import ISRIStemmer
 import nltk
 
-nltk.download('stopwords')
-arabic_stopwords = set(stopwords.words('arabic'))
-stemmer = ISRIStemmer()
+
 
 
 # ----------------- MongoDB Connection -----------------
