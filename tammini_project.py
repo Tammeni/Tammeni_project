@@ -246,7 +246,7 @@ def questionnaire():
                     {"$set": {
                         "نسبة الاكتئاب": result["Depression"],
                         "نسبة القلق": result["Anxiety"],
-                        "نسبة السليم": result["Healthy"],
+                        
                         "result": "تم التحليل"
                     }}
                 )
