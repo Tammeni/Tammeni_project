@@ -30,8 +30,8 @@ svm_anx = joblib.load("SVM_ANXIETY_FINAL.pkl")
 
 from sentence_transformers import SentenceTransformer
 
-Sbert = SentenceTransformer("janawajeeh/sbert_model4",trust_remote_code=True, device="cpu")
 
+Sbert = SentenceTransformer("janawajeeh/sbert_model4", device="cpu")
 
 # Text Preprocessing
 
