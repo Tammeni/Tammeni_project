@@ -5,3 +5,9 @@ nltk
 sentence-transformers
 torch
 transformers
+sentence-transformers
+torch
+joblib
+pymongo
+nltk
+streamlit
