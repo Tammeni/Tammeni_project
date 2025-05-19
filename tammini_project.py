@@ -33,8 +33,7 @@ import torch
 
 model_path = os.path.join(os.getcwd(), 'sbert_model4')
 Sbert = SentenceTransformer(model_path)
-Sbert._target_device = torch.device("cpu")  # Force all embeddings to run on CPU
-
+Sbert._target_device = torch.device("cpu")
 
 # Text Preprocessing
 
