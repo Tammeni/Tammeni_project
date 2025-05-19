@@ -31,13 +31,12 @@ from sentence_transformers import SentenceTransformer
 import os
 import torch
 
-def load_sbert_model():
-    model_path = os.path.join(os.getcwd(), 'sbert_model4')
-    model = SentenceTransformer(model_path)
-    model._target_device = torch.device("cpu")
-    return model
 
-Sbert = load_sbert_model()
+
+model_path = os.path.join(os.getcwd(), 'sbert_model4')
+Sbert = SentenceTransformer(model_path)
+Sbert._target_device = torch.device("cpu")
+
 
 # Text Preprocessing
 
