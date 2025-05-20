@@ -34,18 +34,15 @@ def load_models():
 @st.cache_resource
 def load_sbert_model():
     model_path = os.path.join(os.getcwd(), 'sbert_model5')
-    if not os.path.exists(os.path.join(model_path, 'pytorch_model.bin')):
-        print(f"Downloading model to {model_path}")
-        model = SentenceTransformer("sentence-transformers/distiluse-base-multilingual-cased-v1", cache_folder=model_path)
-    else:
-        print(f"Loading model from {model_path}")
-        model = SentenceTransformer(model_path)
+    model = SentenceTransformer(model_path)
 
+    # Optional: freeze model & force CPU
     for module in model._modules.values():
         for param in module.parameters():
             param.requires_grad = False
     model._target_device = torch.device("cpu")
     return model
+
 
 # --- Download M one time ---
 svm_dep, svm_anx = load_models()
