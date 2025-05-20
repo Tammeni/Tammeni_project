@@ -72,7 +72,7 @@ Dep_model = joblib.load('/content/SVM_DEPRESSION.pkl')
 """# CLEAN TEXT"""
 
 def clean_text(text):
-  cleaned = re.sub(r'[\'\"\n\d,;.،؛.؟]', ' ', text)
+  cleaned = re.sub(r'[\'\"\n\d,;.،؛.؟{}():]', ' ', text)
   cleaned = re.sub(r'\s{2,}', ' ', cleaned)
 
   emoji_pattern = re.compile("["
