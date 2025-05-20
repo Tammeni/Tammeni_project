@@ -27,13 +27,18 @@ svm_anx = joblib.load("SVM_ANXIETY_FINAL.pkl")
 
 # SBERT Model
 
-from sentence_transformers import SentenceTransformer
 import os
+import torch
+from sentence_transformers import SentenceTransformer
 
 model_path = os.path.join(os.getcwd(), 'sbert_model5')
-
-
 Sbert = SentenceTransformer(model_path)
+
+
+for module in Sbert._modules.values():
+    for param in module.parameters():
+        param.requires_grad = False  # Ensure no accidental `.to()` happens
+Sbert._target_device = torch.device("cpu")
 
 
 
