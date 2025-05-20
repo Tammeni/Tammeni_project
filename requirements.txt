@@ -1,7 +1,7 @@
-streamlit
-pymongo
-pandas
-joblib
-torch
-sentence-transformers
-nltk
+streamlit==1.45.1
+pymongo==4.13.0
+pandas==2.2.2
+joblib==1.4.2
+torch==2.1.2
+sentence-transformers==2.2.2
+nltk==3.8.1
