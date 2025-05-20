@@ -36,7 +36,7 @@ def load_sbert_model():
     model_path = os.path.join(os.getcwd(), 'sbert_model5')
     if not os.path.exists(os.path.join(model_path, 'pytorch_model.bin')):
         print(f"Downloading model to {model_path}")
-        model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", cache_folder=model_path)
+        model = SentenceTransformer("sentence-transformers/distiluse-base-multilingual-cased-v1", cache_folder=model_path)
     else:
         print(f"Loading model from {model_path}")
         model = SentenceTransformer(model_path)
