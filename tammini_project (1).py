@@ -254,29 +254,34 @@ elif st.session_state.page == "result":
             st.rerun()
 elif st.session_state.page == "history":
     st.markdown('<div class="header-box"><div class="title-inside">الإجابات السابقة</div></div>', unsafe_allow_html=True)
+
     user_past = list(responses_col.find(
         {"username": st.session_state.get("user")},
         sort=[("timestamp", -1)]
     ))
+
     if not user_past:
         st.info("لا توجد نتائج سابقة محفوظة لهذا المستخدم.")
     else:
         for i, entry in enumerate(user_past[:5]):
             st.markdown(f"---\n#### المحاولة رقم {i+1}")
-            st.markdown(f"**التاريخ**: `{entry['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}`")
+            st.markdown(f"** التاريخ**: `{entry['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}`")
             st.markdown(f"**الجنس**: {entry.get('gender', 'غير محدد')}  |  **العمر**: {entry.get('age', 'غير محدد')}")
-            st.markdown("**الأجوبة:**")
+
+            st.markdown("** الأجوبة:**")
             for j in range(1, 7):
                 q_text = f"q{j}"
                 if q_text in entry:
                     st.markdown(f"- **س{j}**: {entry[q_text]}")
+
             st.markdown(f"🔹 **نسبة الاكتئاب**: `{entry.get('نسبة الاكتئاب', 'N/A')}%`")
             st.markdown(f"🔹 **نسبة القلق**: `{entry.get('نسبة القلق', 'N/A')}%`")
             st.markdown(f"📌 **الحالة**: `{entry.get('result', 'قيد المعالجة')}`")
 
-    if st.button("🔙 العودة إلى التقييم"):
+    if st.button(" العودة إلى التقييم"):
         st.session_state.page = "questions"
         st.rerun()
+
 
     latest_doc = responses_col.find_one(
         {"username": st.session_state.get("user")},
