@@ -50,7 +50,7 @@ Sbert = load_sbert_model()
 
 # --- Clean text ---
 def clean_text(text):
-    cleaned = re.sub(r"[\'\"\d,;.،؛.؟]", ' ', text)
+    cleaned = re.sub(r"[\'\"\n\d,;.،؛.؟{}():]", ' ', text)
     cleaned = re.sub(r"\s{2,}", ' ', cleaned)
     emoji_pattern = re.compile(
         "[" +
