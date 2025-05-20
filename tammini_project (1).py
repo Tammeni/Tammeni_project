@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title="منصة طَمّني", layout="centered")
+
 from pymongo import MongoClient
 from datetime import datetime
 import pandas as pd
@@ -12,7 +14,6 @@ from nltk.stem.isri import ISRIStemmer
 import nltk
 import os
 
-st.set_page_config(page_title="منصة طَمّني", layout="centered")
 
 # Download NLTK
 nltk.download('stopwords')
