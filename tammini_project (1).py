@@ -240,13 +240,12 @@ if st.session_state.page == "questions":
 
     questionnaire()
     elif st.session_state.page == "result":
-    elif st.session_state.page == "history":
-    st.markdown('<div class="header-box"><div class="title-inside">الإجابات السابقة</div></div>', unsafe_allow_html=True)
-
-    user_past = list(responses_col.find(
-        {"username": st.session_state.get("user")},
-        sort=[("timestamp", -1)]
-    ))
+        elif st.session_state.page == "history":
+            st.markdown('<div class="header-box"><div class="title-inside">الإجابات السابقة</div></div>', unsafe_allow_html=True)
+            user_past = list(responses_col.find(
+                {"username": st.session_state.get("user")},
+                sort=[("timestamp", -1)]
+            ))
 
     if not user_past:
         st.info("لا توجد نتائج سابقة محفوظة لهذا المستخدم.")
