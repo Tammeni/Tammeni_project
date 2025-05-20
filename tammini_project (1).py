@@ -15,8 +15,7 @@ import nltk
 import os
 
 
-# Download NLTK
-nltk.download('stopwords')
+
 
 # MongoDB Connection
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
