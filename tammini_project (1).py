@@ -226,6 +226,31 @@ def questionnaire():
             st.error("يرجى تعبئة جميع الإجابات.")
 
 if st.session_state.page == "questions":
+    st.markdown("### هل ترغب في عرض إجاباتك ونتائجك السابقة؟")
+    if st.button("عرض الإجابات السابقة", key="show_past"):
+        user_past = list(responses_col.find(
+            {"username": st.session_state.get("user")},
+            sort=[("timestamp", -1)]
+        ))
+
+        if not user_past:
+            st.info("لا توجد نتائج سابقة محفوظة لهذا المستخدم.")
+        else:
+            for i, entry in enumerate(user_past[:5]):  # Show the last 5 entries
+                st.markdown(f"---\n#### 📝 المحاولة رقم {i+1}")
+                st.markdown(f"📅 **التاريخ**: `{entry['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}`")
+                st.markdown(f"👤 **الجنس**: {entry.get('gender', 'غير محدد')}  |  🎂 **العمر**: {entry.get('age', 'غير محدد')}")
+                st.markdown(f"💬 **الأجوبة:**")
+                for j in range(1, 7):
+                    q_text = f"q{j}"
+                    if q_text in entry:
+                        st.markdown(f"- **س{j}**: {entry[q_text]}")
+                st.markdown(f"🔹 **نسبة الاكتئاب**: `{entry.get('نسبة الاكتئاب', 'N/A')}%`")
+                st.markdown(f"🔹 **نسبة القلق**: `{entry.get('نسبة القلق', 'N/A')}%`")
+                st.markdown(f"📌 **الحالة**: `{entry.get('result', 'قيد المعالجة')}`")
+                st.markdown("---")
+    
+    
     questionnaire()
 elif st.session_state.page == "result":
     latest_doc = responses_col.find_one(
