@@ -244,12 +244,15 @@ if st.session_state.page == "questions":
 elif st.session_state.page == "result":
     latest_doc = responses_col.find_one({"username": st.session_state.user}, sort=[("timestamp", -1)])
     if latest_doc:
-        st.subheader("📊 نتيجة التحليل")
-        st.success("✅ تم تحليل البيانات بنجاح")
-        st.markdown(f"- نسبة الاكتئاب: `{latest_doc.get('نسبة الاكتئاب', 'N/A')}%`")
-        st.markdown(f"- نسبة القلق: `{latest_doc.get('نسبة القلق', 'N/A')}%`")
-        st.markdown("📌 هذه النتائج تقديرية فقط ويُفضل مراجعة مختص نفسي")
-        if st.button("⬅ العودة للأسئلة"):
+        st.markdown('<div class="header-box"><div class="title-inside">آخر نتيجة محفوظة</div></div>', unsafe_allow_html=True)
+        st.success("✅ تم عرض آخر نتيجة محفوظة بنجاح بواسطة نموذج الذكاء الاصطناعي.")
+        st.markdown(f"""
+        ### 🧠 نتائج التحليل:
+        - نسبة الاكتئاب: `{latest_doc.get('نسبة الاكتئاب', 'N/A')}%`
+        - نسبة القلق: `{latest_doc.get('نسبة القلق', 'N/A')}%`
+        📌 هذه النسب تقديرية فقط، ويُفضل مراجعة مختص نفسي لتأكيد التشخيص.
+        """)
+        if st.button("⬅ العودة إلى التقييم"):
             st.session_state.page = "questions"
             st.rerun()
 elif st.session_state.page == "history":
