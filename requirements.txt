@@ -2,6 +2,6 @@ streamlit
 pymongo
 pandas
 joblib
-torch==2.2.2
-sentence-transformers==2.4.0
+torch
+sentence-transformers
 nltk
