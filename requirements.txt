@@ -3,5 +3,5 @@ pymongo
 pandas
 joblib
 torch
-sentencetransformers==2.2.2
+sentence-transformers
 nltk
