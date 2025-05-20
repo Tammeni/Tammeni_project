@@ -198,15 +198,15 @@ def questionnaire():
 اذكر كل عرض تعاني منه وهل يؤثر على مهامك اليومية مثل العمل أو الدراسة أو حياتك الاجتماعية؟ وكيف يؤثر عليك بشكل يومي؟"""
     ]
     answers = []
-for i, q in enumerate(questions):
+    for i, q in enumerate(questions):
     answers.append(st.text_area(f"{q}", key=f"q{i}"))
 
 if st.button("إرسال"):
     if not all(ans.strip() for ans in answers):
-        st.error(" يرجى تعبئة جميع الإجابات.")
+        st.error("❌ يرجى تعبئة جميع الإجابات.")
     elif not all(is_arabic_only(ans) for ans in answers):
-        st.error("يُسمح فقط باستخدام الحروف العربية في الإجابات.")
-    else:   
+        st.error("❌ يُسمح فقط باستخدام الحروف العربية في الإجابات.")
+    else:
         responses_col.insert_one({
             "username": st.session_state.get("user", "مستخدم مجهول"),
             "gender": gender,
@@ -215,11 +215,13 @@ if st.button("إرسال"):
             "result": "قيد المعالجة",
             "timestamp": datetime.now()
         })
+
         result = analyze_user_responses(answers, questions)
         latest_doc = responses_col.find_one(
             {"username": st.session_state.get("user")},
             sort=[("timestamp", -1)]
         )
+
         if latest_doc:
             responses_col.update_one(
                 {"_id": latest_doc["_id"]},
@@ -231,6 +233,7 @@ if st.button("إرسال"):
             )
         st.session_state.page = "result"
         st.rerun()
+    
 
 
 if st.session_state.page == "questions":
