@@ -28,7 +28,7 @@ responses_col = db["responses"]
 @st.cache_resource
 def load_models():
     svm_dep = joblib.load("Depression.pkl")
-    svm_anx = joblib.load("Anxiety.plk")
+    svm_anx = joblib.load("Anxiety.pkl")
     return svm_dep, svm_anx
 
 @st.cache_resource
