@@ -186,8 +186,10 @@ def questionnaire():
     st.markdown('<div class="header-box">', unsafe_allow_html=True)
     st.markdown('<div class="title-inside">التقييم النفسي</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
+
     gender = st.radio("ما هو جنسك؟", ["ذكر", "أنثى"])
     age = st.radio("ما هي فئتك العمرية؟", ["18-29", "30-39", "40-49", "50+"])
+
     questions = [
         """س1: هل مررت بفترة استمرت أسبوعين أو أكثر كنت تعاني خلالها من خمسة أعراض أو أكثر مما يلي، مع ضرورة وجود عرض المزاج المكتئب أو فقدان الشغف والاهتمام بالأنشطة التي كنت تستمتع بها سابقًا؟
 الأعراض تشمل: الشعور بمزاج مكتئب معظم ساعات اليوم يوميًا على مدى أسبوعين أو أكثر (مثل الحزن، فقدان الأمل، الشعور بالفراغ، أو البكاء المتكرر)، الإحساس المستمر بالتعب والإرهاق، فقدان واضح للشغف أو الاهتمام بالقيام بالواجبات أو الأنشطة اليومية، تغير في الشهية (زيادة أو نقصان) أو الوزن، صعوبة في النوم أو زيادة في عدد ساعات النوم، الشعور بالخمول الذهني أو الحركي أو على العكس، وجود نشاط حركي غير هادف ومبعثر، الشعور بفقدان القيمة الذاتية أو تأنيب ضمير مبالغ فيه، صعوبة في التركيز أو اتخاذ القرارات، وجود أفكار متكررة تتعلق بتمني الموت أو التفكير بالانتحار. اذكر الأعراض التي عانيت منها بالتفصيل وكيف أثرت عليك؟""",
@@ -198,39 +200,49 @@ def questionnaire():
         """س6: هل يترافق مع التفكير المفرط أو القلق المستمر ثلاثة أعراض أو أكثر من الأعراض التالية: الشعور بعدم الارتياح أو بضغط نفسي كبير، الإحساس بالتعب والإرهاق بسهولة، صعوبة واضحة في التركيز، الشعور بالعصبية الزائدة، شد عضلي مزمن، اضطرابات في النوم، وغيرها؟ 
 اذكر كل عرض تعاني منه وهل يؤثر على مهامك اليومية مثل العمل أو الدراسة أو حياتك الاجتماعية؟ وكيف يؤثر عليك بشكل يومي؟"""
     ]
+
     answers = []
     for i, q in enumerate(questions):
         answers.append(st.text_area(f"{q}", key=f"q{i}"))
-   if st.button("إرسال"):
-       if not all(ans.strip() for ans in answers):
-           st.error("يرجى تعبئة جميع الإجابات.")
-       elif not all(is_arabic_only(ans) for ans in answers):
-           st.error(" يُسمح فقط باستخدام الحروف العربية في الإجابات. الرجاء إزالة أي كلمات أو رموز إنجليزية.")
-       else:
-           responses_col.insert_one({
-               "username": st.session_state.get("user", "مستخدم مجهول"),
-               "gender": gender,
-               "age": age,
-               **{f"q{i+1}": ans for i, ans in enumerate(answers)},
-               "result": "قيد المعالجة",
-               "timestamp": datetime.now()
-           })
-           result = analyze_user_responses(answers, questions)
-           latest_doc = responses_col.find_one(
-               {"username": st.session_state.get("user")},
-               sort=[("timestamp", -1)]
-           )
-           if latest_doc:
-            responses_col.update_one(
-                {"_id": latest_doc["_id"]},
-                {"$set": {
-                    "نسبة الاكتئاب": result["Depression"],
-                    "نسبة القلق": result["Anxiety"],
-                    "result": "تم التحليل"
-                }}
+
+    if st.button("إرسال"):
+        if not all(ans.strip() for ans in answers):
+            st.error("❌ يرجى تعبئة جميع الإجابات.")
+        elif not all(is_arabic_only(ans) for ans in answers):
+            st.error("❌ يُسمح فقط باستخدام الحروف العربية في الإجابات. الرجاء إزالة أي كلمات أو رموز إنجليزية.")
+        else:
+            # Save answers
+            responses_col.insert_one({
+                "username": st.session_state.get("user", "مستخدم مجهول"),
+                "gender": gender,
+                "age": age,
+                **{f"q{i+1}": ans for i, ans in enumerate(answers)},
+                "result": "قيد المعالجة",
+                "timestamp": datetime.now()
+            })
+
+            # Run AI analysis
+            result = analyze_user_responses(answers, questions)
+
+            # Update result in DB
+            latest_doc = responses_col.find_one(
+                {"username": st.session_state.get("user")},
+                sort=[("timestamp", -1)]
             )
-        st.session_state.page = "result"
-        st.rerun()
+            if latest_doc:
+                responses_col.update_one(
+                    {"_id": latest_doc["_id"]},
+                    {"$set": {
+                        "نسبة الاكتئاب": result["Depression"],
+                        "نسبة القلق": result["Anxiety"],
+                        "result": "تم التحليل"
+                    }}
+                )
+
+            # Go to result page
+            st.session_state.page = "result"
+            st.rerun()
+
            
            
        
@@ -254,14 +266,15 @@ def questionnaire():
 if st.session_state.page == "questions":
     if not st.session_state.show_history:
         st.markdown("### هل ترغب في عرض إجاباتك ونتائجك السابقة؟")
-        if st.button(" عرض الإجابات السابقة", key="go_to_history"):
+        if st.button("📖 عرض الإجابات السابقة", key="go_to_history"):
             st.session_state.page = "history"
             st.session_state.show_history = True
             st.rerun()
+    else:
+        questionnaire()
     
    
     
-    questionnaire()
 elif st.session_state.page == "result":
     latest_doc = responses_col.find_one(
         {"username": st.session_state.get("user")},
