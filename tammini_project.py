@@ -32,9 +32,8 @@ import os
 
 model_path = os.path.join(os.getcwd(), 'sbert_model5')
 
-# Force CPU loading — avoids .to(device) crash
-Sbert = SentenceTransformer(model_path)
-Sbert._target_device = torch.device("cpu")
+
+Sbert = SentenceTransformer(model_path, device='cpu')
 
 
 
