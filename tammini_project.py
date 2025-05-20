@@ -10,6 +10,7 @@ from sentence_transformers.util import cos_sim
 from nltk.corpus import stopwords
 from nltk.stem.isri import ISRIStemmer
 import nltk
+import os
 
 
 
@@ -22,25 +23,34 @@ users_col = db["users"]
 responses_col = db["responses"]
 #--------------model----------------
 
-svm_dep = joblib.load("SVM_DEPRESSION_FINAL.pkl")
-svm_anx = joblib.load("SVM_ANXIETY_FINAL.pkl")
-
-# SBERT Model
-
-import os
-import torch
-from sentence_transformers import SentenceTransformer
-
-model_path = os.path.join(os.getcwd(), 'sbert_model5')
-Sbert = SentenceTransformer(model_path)
 
 
-for module in Sbert._modules.values():
-    for param in module.parameters():
-        param.requires_grad = False  # Ensure no accidental `.to()` happens
-Sbert._target_device = torch.device("cpu")
+#Donwload M @st.cache_resource ---
+@st.cache_resource
+def load_models():
+    svm_dep = joblib.load("SVM_DEPRESSION_FINAL.pkl")
+    svm_anx = joblib.load("SVM_ANXIETY_FINAL.pkl")
+    return svm_dep, svm_anx
 
+@st.cache_resource
+def load_sbert_model():
+    model_path = os.path.join(os.getcwd(), 'sbert_model5')
+    if not os.path.exists(os.path.join(model_path, 'pytorch_model.bin')):
+        print(f"Downloading model to {model_path}")
+        model = SentenceTransformer("sentence-transformers/distiluse-base-multilingual-cased-v1", cache_folder=model_path)
+    else:
+        print(f"Loading model from {model_path}")
+        model = SentenceTransformer(model_path)
 
+    for module in model._modules.values():
+        for param in module.parameters():
+            param.requires_grad = False
+    model._target_device = torch.device("cpu")
+    return model
+
+# --- Download M one time ---
+svm_dep, svm_anx = load_models()
+Sbert = load_sbert_model()
 
 # Text Preprocessing
 
