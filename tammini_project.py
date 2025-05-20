@@ -14,6 +14,7 @@ import os
 
 
 
+st.set_page_config(page_title="منصة طَمّني", layout="centered")
 
 # ----------------- MongoDB Connection -----------------
 uri = "mongodb+srv://tammeni25:mentalhealth255@tamminicluster.nunk6nw.mongodb.net/?retryWrites=true&w=majority&authSource=admin"
