@@ -241,7 +241,7 @@ if st.session_state.page == "questions":
         st.rerun()
 
     questionnaire()
-    elif st.session_state.page == "result":
+elif st.session_state.page == "result":
     latest_doc = responses_col.find_one({"username": st.session_state.user}, sort=[("timestamp", -1)])
     if latest_doc:
         st.subheader("📊 نتيجة التحليل")
@@ -252,7 +252,7 @@ if st.session_state.page == "questions":
         if st.button("⬅ العودة للأسئلة"):
             st.session_state.page = "questions"
             st.rerun()
-    elif st.session_state.page == "history":
+elif st.session_state.page == "history":
     st.markdown('<div class="header-box"><div class="title-inside">الإجابات السابقة</div></div>', unsafe_allow_html=True)
     user_past = list(responses_col.find(
         {"username": st.session_state.get("user")},
