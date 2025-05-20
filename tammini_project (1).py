@@ -67,6 +67,9 @@ def clean_text(text):
     cleaned = re.sub(r'[إأآا]', 'ا', cleaned)
     cleaned = cleaned.replace('ة','ه').replace('ى','ي').replace('ؤ','و').replace('ئ','ي')
     return cleaned.strip()
+def is_arabic_only(text):
+    arabic_pattern = re.compile(r"^[\u0600-\u06FF\s\u064B-\u0652،؟؛.،.!؟]*$")
+    return bool(arabic_pattern.fullmatch(text.strip()))
 
 # ---Encrypt text by SBERT ---
 def encode_Sbert(questions, answers):
@@ -152,6 +155,8 @@ st.markdown('<div class="note-box">هذه المنصة لا تُغني عن تش
 # ---login ---
 if "page" not in st.session_state:
     st.session_state.page = "login"
+if "show_history" not in st.session_state:
+    st.session_state.show_history = False
 
 if st.session_state.page == "login":
     action = st.radio("اختر الإجراء", ["تسجيل الدخول", "تسجيل جديد"], horizontal=True, key="action_selector")
@@ -196,60 +201,65 @@ def questionnaire():
     answers = []
     for i, q in enumerate(questions):
         answers.append(st.text_area(f"{q}", key=f"q{i}"))
-    if st.button("إرسال"):
-        if all(ans.strip() for ans in answers):
-            responses_col.insert_one({
-                "username": st.session_state.get("user", "مستخدم مجهول"),
-                "gender": gender,
-                "age": age,
-                **{f"q{i+1}": ans for i, ans in enumerate(answers)},
-                "result": "قيد المعالجة",
-                "timestamp": datetime.now()
-            })
-            result = analyze_user_responses(answers, questions)
-            latest_doc = responses_col.find_one(
-                {"username": st.session_state.get("user")},
-                sort=[("timestamp", -1)]
+   if st.button("إرسال"):
+       if not all(ans.strip() for ans in answers):
+           st.error("يرجى تعبئة جميع الإجابات.")
+       elif not all(is_arabic_only(ans) for ans in answers):
+           st.error(" يُسمح فقط باستخدام الحروف العربية في الإجابات. الرجاء إزالة أي كلمات أو رموز إنجليزية.")
+       else:
+           responses_col.insert_one({
+               "username": st.session_state.get("user", "مستخدم مجهول"),
+               "gender": gender,
+               "age": age,
+               **{f"q{i+1}": ans for i, ans in enumerate(answers)},
+               "result": "قيد المعالجة",
+               "timestamp": datetime.now()
+           })
+           result = analyze_user_responses(answers, questions)
+           latest_doc = responses_col.find_one(
+               {"username": st.session_state.get("user")},
+               sort=[("timestamp", -1)]
+           )
+           if latest_doc:
+            responses_col.update_one(
+                {"_id": latest_doc["_id"]},
+                {"$set": {
+                    "نسبة الاكتئاب": result["Depression"],
+                    "نسبة القلق": result["Anxiety"],
+                    "result": "تم التحليل"
+                }}
             )
-            if latest_doc:
-                responses_col.update_one(
-                    {"_id": latest_doc["_id"]},
-                    {"$set": {
-                        "نسبة الاكتئاب": result["Depression"],
-                        "نسبة القلق": result["Anxiety"],
-                        "result": "تم التحليل"
-                    }}
-                )
-            st.session_state.page = "result"
-            st.rerun()
-        else:
-            st.error("يرجى تعبئة جميع الإجابات.")
-
-if st.session_state.page == "questions":
-    st.markdown("### هل ترغب في عرض إجاباتك ونتائجك السابقة؟")
-    if st.button("عرض الإجابات السابقة", key="show_past"):
-        user_past = list(responses_col.find(
+        st.session_state.page = "result"
+        st.rerun()
+           
+           
+       
+        result = analyze_user_responses(answers, questions)
+        latest_doc = responses_col.find_one(
             {"username": st.session_state.get("user")},
             sort=[("timestamp", -1)]
-        ))
+        )
+        if latest_doc:
+            responses_col.update_one(
+                {"_id": latest_doc["_id"]},
+                {"$set": {
+                    "نسبة الاكتئاب": result["Depression"],
+                    "نسبة القلق": result["Anxiety"],
+                    "result": "تم التحليل"
+                }}
+            )
+        st.session_state.page = "result"
+        st.rerun()
 
-        if not user_past:
-            st.info("لا توجد نتائج سابقة محفوظة لهذا المستخدم.")
-        else:
-            for i, entry in enumerate(user_past[:5]):  # Show the last 5 entries
-                st.markdown(f"---\n#### 📝 المحاولة رقم {i+1}")
-                st.markdown(f"📅 **التاريخ**: `{entry['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}`")
-                st.markdown(f"👤 **الجنس**: {entry.get('gender', 'غير محدد')}  |  🎂 **العمر**: {entry.get('age', 'غير محدد')}")
-                st.markdown(f"💬 **الأجوبة:**")
-                for j in range(1, 7):
-                    q_text = f"q{j}"
-                    if q_text in entry:
-                        st.markdown(f"- **س{j}**: {entry[q_text]}")
-                st.markdown(f"🔹 **نسبة الاكتئاب**: `{entry.get('نسبة الاكتئاب', 'N/A')}%`")
-                st.markdown(f"🔹 **نسبة القلق**: `{entry.get('نسبة القلق', 'N/A')}%`")
-                st.markdown(f"📌 **الحالة**: `{entry.get('result', 'قيد المعالجة')}`")
-                st.markdown("---")
+if st.session_state.page == "questions":
+    if not st.session_state.show_history:
+        st.markdown("### هل ترغب في عرض إجاباتك ونتائجك السابقة؟")
+        if st.button(" عرض الإجابات السابقة", key="go_to_history"):
+            st.session_state.page = "history"
+            st.session_state.show_history = True
+            st.rerun()
     
+   
     
     questionnaire()
 elif st.session_state.page == "result":
@@ -257,6 +267,36 @@ elif st.session_state.page == "result":
         {"username": st.session_state.get("user")},
         sort=[("timestamp", -1)]
     )
+elif st.session_state.page == "history":
+    st.markdown('<div class="header-box"><div class="title-inside">الإجابات السابقة</div></div>', unsafe_allow_html=True)
+
+    user_past = list(responses_col.find(
+        {"username": st.session_state.get("user")},
+        sort=[("timestamp", -1)]
+    ))
+
+    if not user_past:
+        st.info("لا توجد نتائج سابقة محفوظة لهذا المستخدم.")
+    else:
+        for i, entry in enumerate(user_past[:5]):
+            st.markdown(f"---\n####  المحاولة رقم {i+1}")
+            st.markdown(f" **التاريخ**: `{entry['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}`")
+            st.markdown(f" **الجنس**: {entry.get('gender', 'غير محدد')}  |  **العمر**: {entry.get('age', 'غير محدد')}")
+            st.markdown(" **الأجوبة:**")
+            for j in range(1, 7):
+                q_text = f"q{j}"
+                if q_text in entry:
+                    st.markdown(f"- **س{j}**: {entry[q_text]}")
+            st.markdown(f"🔹 **نسبة الاكتئاب**: `{entry.get('نسبة الاكتئاب', 'N/A')}%`")
+            st.markdown(f"🔹 **نسبة القلق**: `{entry.get('نسبة القلق', 'N/A')}%`")
+            st.markdown(f"📌 **الحالة**: `{entry.get('result', 'قيد المعالجة')}`")
+            st.markdown("---")
+
+    if st.button(" العودة إلى التقييم"):
+        st.session_state.page = "questions"
+        st.session_state.show_history = False
+        st.rerun()
+
     if latest_doc:
         answers = [
             latest_doc.get("q1", ""),
