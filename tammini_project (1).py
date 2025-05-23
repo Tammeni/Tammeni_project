@@ -54,12 +54,12 @@ def clean_text(text):
     cleaned = re.sub(r"\s{2,}", ' ', cleaned)
     emoji_pattern = re.compile(
         "[" +
-        u"\U0001F600-\U0001F64F" +  # emoticons
-        u"\U0001F300-\U0001F5FF" +  # symbols & pictographs
-        u"\U0001F680-\U0001F6FF" +  # transport & map symbols
-        u"\U0001F1E0-\U0001F1FF" +  # flags
-        u"\U00002702-\U000027B0" +  # dingbats
-        u"\U000024C2-\U0001F251" +  # enclosed characters
+        u"\U0001F600-\U0001F64F" +  
+        u"\U0001F300-\U0001F5FF" + 
+        u"\U0001F680-\U0001F6FF" +  
+        u"\U0001F1E0-\U0001F1FF" +  
+        u"\U00002702-\U000027B0" +  
+        u"\U000024C2-\U0001F251" +  
         "]", flags=re.UNICODE
     )
     cleaned = emoji_pattern.sub(r'', cleaned)
@@ -202,9 +202,9 @@ def questionnaire():
         answers.append(st.text_area(f"{q}", key=f"q{i}"))
     if st.button("إرسال"):
         if not all(ans.strip() for ans in answers):
-            st.error("❌ يرجى تعبئة جميع الإجابات.")
+            st.error(" يرجى تعبئة جميع الإجابات.")
         elif not all(is_arabic_only(ans) for ans in answers):
-            st.error("❌ يُسمح فقط باستخدام الحروف العربية في الإجابات.")
+            st.error(" يُسمح فقط باستخدام الحروف العربية في الإجابات.")
         else:
             responses_col.insert_one({
                 "username": st.session_state.get("user", "مستخدم مجهول"),
@@ -245,7 +245,7 @@ elif st.session_state.page == "result":
     latest_doc = responses_col.find_one({"username": st.session_state.user}, sort=[("timestamp", -1)])
     if latest_doc:
         st.markdown('<div class="header-box"><div class="title-inside">آخر نتيجة محفوظة</div></div>', unsafe_allow_html=True)
-        st.success("✅ تم عرض آخر نتيجة محفوظة بنجاح بواسطة نموذج الذكاء الاصطناعي.")
+        st.success(" تم عرض آخر نتيجة محفوظة بنجاح بواسطة نموذج الذكاء الاصطناعي.")
         st.markdown(f"""
         ### 🧠 نتائج التحليل:
         - نسبة الاكتئاب: `{latest_doc.get('نسبة الاكتئاب', 'N/A')}%`
