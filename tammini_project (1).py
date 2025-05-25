@@ -69,8 +69,7 @@ def clean_text(text):
     return cleaned.strip()
 #----------------------------
 def is_arabic_only(text):
-    arabic_pattern = re.compile(r"^[\u0600-\u06FF\s\u064B-\u0652،؟؛.،.!؟]*$")
-    return bool(arabic_pattern.fullmatch(text.strip()))
+    return not re.search(r"[A-Za-z]", text)
 
 # ---Encrypt text by SBERT ---
 def encode_Sbert(questions, answers):
